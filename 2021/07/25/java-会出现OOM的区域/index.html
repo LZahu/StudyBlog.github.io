@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/StudyBlog.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/StudyBlog.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/StudyBlog.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/StudyBlog.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/StudyBlog.github.io/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css" integrity="sha256-2H3fkXt6FEmrReK448mDVGKb3WW2ZZw35gI7vqHOE4Y=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lzahu.github.io","root":"/StudyBlog.github.io/","images":"/StudyBlog.github.io/images","scheme":"Gemini","version":"8.6.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/StudyBlog.github.io/js/config.js"></script>
+<meta name="description" content="描述下jvm中可能会出现OOM的区域，包括其出现的原因。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java-会出现OOM的区域">
+<meta property="og:url" content="https://lzahu.github.io/2021/07/25/java-%E4%BC%9A%E5%87%BA%E7%8E%B0OOM%E7%9A%84%E5%8C%BA%E5%9F%9F/index.html">
+<meta property="og:site_name" content="学习记录博客">
+<meta property="og:description" content="描述下jvm中可能会出现OOM的区域，包括其出现的原因。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2021-07-25T09:36:24.000Z">
+<meta property="article:modified_time" content="2021-07-25T09:49:52.354Z">
+<meta property="article:author" content="liu zhen">
+<meta property="article:tag" content="jvm">
+<meta property="article:tag" content="OOM">
+<meta property="article:tag" content="堆">
+<meta property="article:tag" content="栈">
+<meta property="article:tag" content="方法区">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lzahu.github.io/2021/07/25/java-%E4%BC%9A%E5%87%BA%E7%8E%B0OOM%E7%9A%84%E5%8C%BA%E5%9F%9F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/07/25/java-%E4%BC%9A%E5%87%BA%E7%8E%B0OOM%E7%9A%84%E5%8C%BA%E5%9F%9F/","path":"2021/07/25/java-会出现OOM的区域/","title":"java-会出现OOM的区域"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>java-会出现OOM的区域 | 学习记录博客</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/StudyBlog.github.io/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/StudyBlog.github.io/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">学习记录博客</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">啦啦啦小菜鸡</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E5%A0%86%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-text">1. 堆内存溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E6%A0%88%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-text">2. 栈内存溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E6%96%B9%E6%B3%95%E5%8C%BA%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-text">3. 方法区内存溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E6%9C%AC%E5%9C%B0%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-text">4. 本地直接内存溢出</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-overview">
+            <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="liu zhen"
+      src="/StudyBlog.github.io/images/head.jpg">
+  <p class="site-author-name" itemprop="name">liu zhen</p>
+  <div class="site-description" itemprop="description">小菜鸡的学习笔记</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/StudyBlog.github.io/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/StudyBlog.github.io/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/StudyBlog.github.io/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LZahu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LZahu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/StudyBlog.github.io/1171268809@qq.com" title="E-Mail → 1171268809@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+          </div>
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/07/25/java-%E4%BC%9A%E5%87%BA%E7%8E%B0OOM%E7%9A%84%E5%8C%BA%E5%9F%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
+      <meta itemprop="name" content="liu zhen">
+      <meta itemprop="description" content="小菜鸡的学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="学习记录博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java-会出现OOM的区域
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-07-25 17:36:24 / 修改时间：17:49:52" itemprop="dateCreated datePublished" datetime="2021-07-25T17:36:24+08:00">2021-07-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/StudyBlog.github.io/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">描述下jvm中可能会出现OOM的区域，包括其出现的原因。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p><strong>jvm内存结构中除了 PC 寄存器不会发生 OOM，其余区域均有可能出现 OOM。</strong></p>
+<h1 id="1-堆内存溢出"><a href="#1-堆内存溢出" class="headerlink" title="1. 堆内存溢出"></a>1. 堆内存溢出</h1><p>出现 Java 堆内存溢出时，会报异常堆栈的信息 <code>java.lang.OutOfMemoryError</code>，然后在该信息后面紧跟提示 <code>Java heap space</code>。</p>
+<p>要解决这个内存区域的异常，常规的处理方法是首先通过<strong>内存映像分析工具</strong>（如 Eclipse Memory Analyzer）对Dump 出来的堆转储快照进行分析。第一步首先应确认内存中导致 OOM 的对象是否是必要的，也就是要先分清楚到底是出现了<strong>内存泄漏</strong>（Memory Leak）还是<strong>内存溢出</strong>（Memory Overflow）。</p>
+<ul>
+<li><p><strong>如果是内存泄漏</strong>，可进一步通过工具查看泄漏对象到GC Roots的引用链，找到泄漏对象是通过怎样的引用路径、与哪些 GC Roots 相关联，才导致垃圾收集器无法回收它们，根据泄漏对象的类型信息以及它到 GC Roots 引用链的信息，一般可以比较准确地定位到这些对象创建的位置，进而找出产生内存泄漏的代码的具体位置。</p>
+</li>
+<li><p><strong>如果不是内存泄漏</strong>，换句话说就是内存中的对象确实都是必须存活的，那就应当检查 Java 虚拟机的堆参数（-Xmx与-Xms）设置，与机器的内存对比，看看是否还有向上调整的空间。再从代码上检查是否存在某些对象生命周期过长、持有状态时间过长、存储结构设计不合理等情况，尽量减少程序运行期的内存消耗。</p>
+</li>
+</ul>
+<h1 id="2-栈内存溢出"><a href="#2-栈内存溢出" class="headerlink" title="2. 栈内存溢出"></a>2. 栈内存溢出</h1><ul>
+<li><p><strong>如果线程请求的栈深度大于虚拟机所允许的最大深度</strong>，将抛出 <code>StackOverflowError</code> 异常。</p>
+<p>一般来说， 在单线程下，无论是由于栈帧太大还是虚拟机栈容量太小，当内存无法分配的时候，虚拟机抛出的都是 <code>StackOverflowError</code> 异常。</p>
+</li>
+<li><p>如果虚拟机的栈内存允许动态扩展，<strong>当扩展栈容量无法申请到足够的内存时</strong>，将抛出 <code>OutOfMemoryError</code> 异常。</p>
+</li>
+</ul>
+<p>程序在不断的创建线程，这可能会产生 <code>OutOfMemoryError</code> 异常，但是此种情况与栈空间是否足够大并没有任何关系。而 HotSpot 虚拟机的选择是不支持扩展，所以除非在创建线程申请内存时就因无法获得足够内存而出现 <code>OutOfMemoryError</code> 异常，否则在线程运行时是不会因为扩展而导致内存溢出的，只会因为栈容量无法容纳新的栈帧而导致 <code>StackOverflowError</code> 异常。</p>
+<h1 id="3-方法区内存溢出"><a href="#3-方法区内存溢出" class="headerlink" title="3. 方法区内存溢出"></a>3. 方法区内存溢出</h1><ul>
+<li>常量池中存放大量的 String 对象，并保持对这些对象的引用，避免 Full GC 回收常量池，就会产生 <code>OutOfMemoryError</code> 异常，后面跟的提示信息是 <code>PermGen space</code>,说明运行时常量池属于方法区。</li>
+<li>方法区用于存放 Class 的相关信息，如类名、访问修饰符、常量池、字段描述、方法描述等。当产生大量的类去填充满方法区，就会溢出</li>
+</ul>
+<h1 id="4-本地直接内存溢出"><a href="#4-本地直接内存溢出" class="headerlink" title="4. 本地直接内存溢出"></a>4. 本地直接内存溢出</h1><p>由直接内存导致的内存溢出，一个明显的特征是在 Heap Dump 文件中不会看见有什么明显的异常情况，如果读者发现内存溢出之后产生的 Dump 文件很小，而程序中又直接或间接使用了 DirectMemory（典型的间接使用就是NIO），那就可以考虑重点检查一下直接内存方面的原因了。</p>
+<p>DirectMemory 容量可通过 <code>MaxDirectMemorySize</code> 指定，如果不指定，则默认与 java 堆最大值一样。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/StudyBlog.github.io/tags/jvm/" rel="tag"><i class="fa fa-tag"></i> jvm</a>
+              <a href="/StudyBlog.github.io/tags/OOM/" rel="tag"><i class="fa fa-tag"></i> OOM</a>
+              <a href="/StudyBlog.github.io/tags/%E5%A0%86/" rel="tag"><i class="fa fa-tag"></i> 堆</a>
+              <a href="/StudyBlog.github.io/tags/%E6%A0%88/" rel="tag"><i class="fa fa-tag"></i> 栈</a>
+              <a href="/StudyBlog.github.io/tags/%E6%96%B9%E6%B3%95%E5%8C%BA/" rel="tag"><i class="fa fa-tag"></i> 方法区</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/25/java-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA/" rel="prev" title="java-运行时数据区">
+                  <i class="fa fa-chevron-left"></i> java-运行时数据区
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/25/java-%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/" rel="next" title="java-内存泄漏">
+                  java-内存泄漏 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liu zhen</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/StudyBlog.github.io/js/comments.js"></script><script src="/StudyBlog.github.io/js/utils.js"></script><script src="/StudyBlog.github.io/js/motion.js"></script><script src="/StudyBlog.github.io/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

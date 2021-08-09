@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/StudyBlog.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/StudyBlog.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/StudyBlog.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/StudyBlog.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/StudyBlog.github.io/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css" integrity="sha256-2H3fkXt6FEmrReK448mDVGKb3WW2ZZw35gI7vqHOE4Y=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lzahu.github.io","root":"/StudyBlog.github.io/","images":"/StudyBlog.github.io/images","scheme":"Gemini","version":"8.6.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/StudyBlog.github.io/js/config.js"></script>
+<meta name="description" content="介绍RabbitMQ的基本概念和它的工作原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rabbitMQ-基础概念和工作原理">
+<meta property="og:url" content="https://lzahu.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="学习记录博客">
+<meta property="og:description" content="介绍RabbitMQ的基本概念和它的工作原理。">
+<meta property="og:locale">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/MQ%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6.jpg">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/%E6%A0%B8%E5%BF%83%E9%83%A8%E5%88%86.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86.png">
+<meta property="article:published_time" content="2021-07-26T07:07:44.000Z">
+<meta property="article:modified_time" content="2021-07-26T07:32:42.323Z">
+<meta property="article:author" content="liu zhen">
+<meta property="article:tag" content="生产者">
+<meta property="article:tag" content="消费者">
+<meta property="article:tag" content="交换机">
+<meta property="article:tag" content="队列">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/MQ%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6.jpg">
+
+
+<link rel="canonical" href="https://lzahu.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/","path":"2021/07/26/rabbitMQ-基础概念和工作原理/","title":"rabbitMQ-基础概念和工作原理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>rabbitMQ-基础概念和工作原理 | 学习记录博客</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/StudyBlog.github.io/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/StudyBlog.github.io/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">学习记录博客</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">啦啦啦小菜鸡</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E7%90%86%E8%A7%A3"><span class="nav-text">1. 理解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-text">2. 核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E7%94%9F%E4%BA%A7%E8%80%85"><span class="nav-text">2.1. 生产者</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E6%B6%88%E8%B4%B9%E8%80%85"><span class="nav-text">2.2. 消费者</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E4%BA%A4%E6%8D%A2%E6%9C%BA"><span class="nav-text">2.3. 交换机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-%E9%98%9F%E5%88%97"><span class="nav-text">2.4. 队列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E6%A0%B8%E5%BF%83%E9%83%A8%E5%88%86"><span class="nav-text">3. 核心部分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-text">4. 工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-Broker"><span class="nav-text">4.1. Broker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-Virtual-host"><span class="nav-text">4.2. Virtual host</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-Connection"><span class="nav-text">4.3. Connection</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-4-Channel"><span class="nav-text">4.4. Channel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-5-Exchange"><span class="nav-text">4.5. Exchange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-6-Queue"><span class="nav-text">4.6. Queue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-7-Binding"><span class="nav-text">4.7. Binding</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-overview">
+            <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="liu zhen"
+      src="/StudyBlog.github.io/images/head.jpg">
+  <p class="site-author-name" itemprop="name">liu zhen</p>
+  <div class="site-description" itemprop="description">小菜鸡的学习笔记</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/StudyBlog.github.io/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/StudyBlog.github.io/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/StudyBlog.github.io/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LZahu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LZahu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/StudyBlog.github.io/1171268809@qq.com" title="E-Mail → 1171268809@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+          </div>
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
+      <meta itemprop="name" content="liu zhen">
+      <meta itemprop="description" content="小菜鸡的学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="学习记录博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          rabbitMQ-基础概念和工作原理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-07-26 15:07:44 / 修改时间：15:32:42" itemprop="dateCreated datePublished" datetime="2021-07-26T15:07:44+08:00">2021-07-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/StudyBlog.github.io/categories/RabbitMQ/" itemprop="url" rel="index"><span itemprop="name">RabbitMQ</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">介绍RabbitMQ的基本概念和它的工作原理。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="1-理解"><a href="#1-理解" class="headerlink" title="1. 理解"></a>1. 理解</h1><p>RabbitMQ是一个 <code>消息中间件</code> ：它接受并转发消息。你可以把它当做一个快递站点，当你要发送一个包裹时，你把你的包裹放到快递站，快递员最终会把你的快递送到收件人那里，按照这种逻辑RabbitMQ是一个快递站，一个快递员帮你传递快件。</p>
+<p><strong>RabbitMQ与快递站的主要区别在于，它不处理快件而是接收，存储和转发消息数据。</strong></p>
+<p><img src="/StudyBlog.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/MQ%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6.jpg"></p>
+<h1 id="2-核心概念"><a href="#2-核心概念" class="headerlink" title="2. 核心概念"></a>2. 核心概念</h1><h2 id="2-1-生产者"><a href="#2-1-生产者" class="headerlink" title="2.1. 生产者"></a>2.1. 生产者</h2><p>产生数据发送消息的程序是生产者</p>
+<h2 id="2-2-消费者"><a href="#2-2-消费者" class="headerlink" title="2.2. 消费者"></a>2.2. 消费者</h2><p>消费与接收具有相似的含义。消费者大多时候是一个等待接收消息的程序。</p>
+<p><strong>请注意！生产者、消费者和消息中间件很多时候并不在同一机器上。同一个应用程序既可以是生产者又是可以是消费者。</strong></p>
+<h2 id="2-3-交换机"><a href="#2-3-交换机" class="headerlink" title="2.3. 交换机"></a>2.3. 交换机</h2><p><strong>交换机是RabbitMQ非常重要的一个部件，一方面它接收来自生产者的消息，另一方面它将消息推送到队列中。</strong></p>
+<p>交换机必须确切知道如何处理它接收到的消息，是将这些消息推送到特定队列还是推送到多个队列，亦或者是把消息丢弃，这个得有交换机类型决定。</p>
+<h2 id="2-4-队列"><a href="#2-4-队列" class="headerlink" title="2.4. 队列"></a>2.4. 队列</h2><p>队列是RabbitMQ内部使用的一种数据结构，尽管消息流经RabbitMQ和应用程序，但它们只能存储在队列中。队列仅受主机的内存和磁盘限制的约束，本质上是一个大的消息缓冲区。</p>
+<p>许多生产者可以将消息发送到一个队列，许多消费者可以尝试从一个队列接收数据。这就是我们使用队列的方式。</p>
+<h1 id="3-核心部分"><a href="#3-核心部分" class="headerlink" title="3. 核心部分"></a>3. 核心部分</h1><p><img src="/StudyBlog.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/%E6%A0%B8%E5%BF%83%E9%83%A8%E5%88%86.png"></p>
+<h1 id="4-工作原理"><a href="#4-工作原理" class="headerlink" title="4. 工作原理"></a>4. 工作原理</h1><p><img src="/StudyBlog.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86.png"></p>
+<h2 id="4-1-Broker"><a href="#4-1-Broker" class="headerlink" title="4.1. Broker"></a>4.1. Broker</h2><p>接收和分发消息的应用，RabbitMQ Server就是Message Broker。</p>
+<h2 id="4-2-Virtual-host"><a href="#4-2-Virtual-host" class="headerlink" title="4.2. Virtual host"></a>4.2. Virtual host</h2><p>出于多租户和安全因素设计的，把 <code>AMQP</code> 的基本组件划分到一个虚拟的分组中，类似于网络中的 <code>namespace</code> 概念。当多个不同的用户使用同一个RabbitMQ server提供的服务时，可以划分出多个 <code>vhost</code>，每个用户在自己的 <code>vhost</code> 创建 exchange／queue 等。</p>
+<h2 id="4-3-Connection"><a href="#4-3-Connection" class="headerlink" title="4.3. Connection"></a>4.3. Connection</h2><p>publisher／consumer和broker之间的TCP连接。</p>
+<h2 id="4-4-Channel"><a href="#4-4-Channel" class="headerlink" title="4.4. Channel"></a>4.4. Channel</h2><p>如果每一次访问 RabbitMQ 都建立一个Connection，在消息量大的时候建立 TCP Connection的开销将是巨大的，效率也较低。<strong>Channel是在connection内部建立的逻辑连接</strong>，如果应用程序支持多线程，通常每个thread创建单独的channel进行通讯，AMQP method包含了channel id 帮助客户端和message broker 识别 channel，所以<strong>channel之间是完全隔离的</strong>。</p>
+<p><strong>Channel作为轻量级的Connection，极大减少了操作系统建立TCP connection的开销</strong>。</p>
+<h2 id="4-5-Exchange"><a href="#4-5-Exchange" class="headerlink" title="4.5. Exchange"></a>4.5. Exchange</h2><p>message 到达 broker 的第一站，根据分发规则，匹配查询表中的 routing key，分发消息到queue 中去。</p>
+<p>常用的类型有：<code>direct (point-to-point)</code>, <code>topic (publish-subscribe)</code> 和 <code>fanout (multicast)</code></p>
+<h2 id="4-6-Queue"><a href="#4-6-Queue" class="headerlink" title="4.6. Queue"></a>4.6. Queue</h2><p>消息最终被送到这里等待consumer取走。</p>
+<h2 id="4-7-Binding"><a href="#4-7-Binding" class="headerlink" title="4.7. Binding"></a>4.7. Binding</h2><p><strong>exchange和queue之间的虚拟连接</strong>，binding中可以包含routing key。Binding信息被保存到exchange中的查询表中，用于message的分发依据。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/StudyBlog.github.io/tags/%E7%94%9F%E4%BA%A7%E8%80%85/" rel="tag"><i class="fa fa-tag"></i> 生产者</a>
+              <a href="/StudyBlog.github.io/tags/%E6%B6%88%E8%B4%B9%E8%80%85/" rel="tag"><i class="fa fa-tag"></i> 消费者</a>
+              <a href="/StudyBlog.github.io/tags/%E4%BA%A4%E6%8D%A2%E6%9C%BA/" rel="tag"><i class="fa fa-tag"></i> 交换机</a>
+              <a href="/StudyBlog.github.io/tags/%E9%98%9F%E5%88%97/" rel="tag"><i class="fa fa-tag"></i> 队列</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/25/java-G1%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/" rel="prev" title="java-G1垃圾收集器">
+                  <i class="fa fa-chevron-left"></i> java-G1垃圾收集器
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/" rel="next" title="java-反射">
+                  java-反射 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liu zhen</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/StudyBlog.github.io/js/comments.js"></script><script src="/StudyBlog.github.io/js/utils.js"></script><script src="/StudyBlog.github.io/js/motion.js"></script><script src="/StudyBlog.github.io/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/StudyBlog.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/StudyBlog.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/StudyBlog.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/StudyBlog.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/StudyBlog.github.io/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css" integrity="sha256-2H3fkXt6FEmrReK448mDVGKb3WW2ZZw35gI7vqHOE4Y=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lzahu.github.io","root":"/StudyBlog.github.io/","images":"/StudyBlog.github.io/images","scheme":"Gemini","version":"8.6.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/StudyBlog.github.io/js/config.js"></script>
+<meta name="description" content="反射是个很强大的功能，这里只是简单地介绍下基础应用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java-反射">
+<meta property="og:url" content="https://lzahu.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/index.html">
+<meta property="og:site_name" content="学习记录博客">
+<meta property="og:description" content="反射是个很强大的功能，这里只是简单地介绍下基础应用。">
+<meta property="og:locale">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/java/java学习资料/blogs/source/_posts/java-反射/1.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/java/java学习资料/blogs/source/_posts/java-反射/2.png">
+<meta property="article:published_time" content="2021-08-01T11:57:01.000Z">
+<meta property="article:modified_time" content="2021-08-01T13:33:11.021Z">
+<meta property="article:author" content="liu zhen">
+<meta property="article:tag" content="反射">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/java/java学习资料/blogs/source/_posts/java-反射/1.png">
+
+
+<link rel="canonical" href="https://lzahu.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/","path":"2021/08/01/java-反射/","title":"java-反射"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>java-反射 | 学习记录博客</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/StudyBlog.github.io/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/StudyBlog.github.io/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">学习记录博客</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">啦啦啦小菜鸡</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E5%8F%8D%E5%B0%84"><span class="nav-text">1. 什么是反射</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E5%8F%8D%E5%B0%84%E7%9A%84%E7%94%A8%E9%80%94"><span class="nav-text">2. 反射的用途</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Class%E7%B1%BB"><span class="nav-text">3. Class类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E5%88%A9%E7%94%A8%E5%8F%8D%E5%B0%84%E5%88%86%E6%9E%90%E7%B1%BB%E7%9A%84%E8%83%BD%E5%8A%9B"><span class="nav-text">4. 利用反射分析类的能力</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-%E8%B0%83%E7%94%A8%E7%A7%81%E6%9C%89%E5%B1%9E%E6%80%A7%E5%92%8C%E6%96%B9%E6%B3%95"><span class="nav-text">5. 调用私有属性和方法</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-overview">
+            <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="liu zhen"
+      src="/StudyBlog.github.io/images/head.jpg">
+  <p class="site-author-name" itemprop="name">liu zhen</p>
+  <div class="site-description" itemprop="description">小菜鸡的学习笔记</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/StudyBlog.github.io/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/StudyBlog.github.io/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/StudyBlog.github.io/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LZahu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LZahu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/StudyBlog.github.io/1171268809@qq.com" title="E-Mail → 1171268809@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+          </div>
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
+      <meta itemprop="name" content="liu zhen">
+      <meta itemprop="description" content="小菜鸡的学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="学习记录博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java-反射
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-08-01 19:57:01 / 修改时间：21:33:11" itemprop="dateCreated datePublished" datetime="2021-08-01T19:57:01+08:00">2021-08-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/StudyBlog.github.io/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">反射是个很强大的功能，这里只是简单地介绍下基础应用。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="1-什么是反射"><a href="#1-什么是反射" class="headerlink" title="1. 什么是反射"></a>1. 什么是反射</h1><p>之前也百度过这个问题，但都是比较冗长的概念。不过，《java核心技术 卷1》里面的解释我觉得很好，描述如下：</p>
+<blockquote>
+<p><strong>能够分析类能力的程序称为反射。</strong></p>
+</blockquote>
+<p>我之所以觉得这句解释比较好是因为它简单明了，在学习过程中，我们用到的99%都是实例对象，可是，实例对象都是先有类，再有对象，反射的关注点不在对象，而在类！因此，这种关注点的转换，让我觉得很好地体现了”反“这个字。当然，除此之外，也说明了它的用途：分析类能力，以便操作。</p>
+<h1 id="2-反射的用途"><a href="#2-反射的用途" class="headerlink" title="2. 反射的用途"></a>2. 反射的用途</h1><p>上面说，反射可以分析类能力，那么分析类能力到底是为了什么？如下：</p>
+<ol>
+<li>在运行时分析类能力</li>
+<li>在运行时查看对象，例如，编写一个toString方法供所有类使用</li>
+<li>实现通用的数组操作代码</li>
+<li><strong>利用Method对象，实现”指针式“的万能操作</strong>（这才是重点）</li>
+</ol>
+<h1 id="3-Class类"><a href="#3-Class类" class="headerlink" title="3. Class类"></a>3. Class类</h1><p>Class类是反射的基础，在类的加载时曾提到过，Class类是程序访问对象的一个接口，通过这个Class类可以知道某个具体的对象属于哪个类？有哪些属性和方法？</p>
+<p>那么，如何去获取某个对象的Class类呢？共三种方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Reflect reflect = <span class="keyword">new</span> Reflect();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 三种方法获得Reflect类的对应Class</span></span><br><span class="line">        <span class="comment">// 1.class属性</span></span><br><span class="line">        Class&lt;Reflect&gt; reflectClass = Reflect.class;</span><br><span class="line">        <span class="comment">// 2.forName()方法</span></span><br><span class="line">        String path = <span class="string">&quot;reflect.Reflect&quot;</span>;</span><br><span class="line">        Class&lt;?&gt; class1 =  Class.forName(path);</span><br><span class="line">        <span class="comment">// 3.通过实例对象调用getClass()方法</span></span><br><span class="line">        Class&lt;? extends Reflect&gt; class2 = reflect.getClass();</span><br><span class="line">        </span><br><span class="line">        System.out.println(reflectClass == class1);</span><br><span class="line">        System.out.println(reflectClass == class2);</span><br><span class="line">        System.out.println(class1 == class2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Reflect类是新建的一个类，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Reflect</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String x = <span class="string">&quot;private x&quot;</span>;</span><br><span class="line">    <span class="keyword">protected</span> String y = <span class="string">&quot;protected y&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> String z = <span class="string">&quot;public z&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 无参构造器，public</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Reflect</span><span class="params">()</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 有参构造器，public</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Reflect</span><span class="params">(String x, String y, String z)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.x = x;</span><br><span class="line">        <span class="keyword">this</span>.y = y;</span><br><span class="line">        <span class="keyword">this</span>.z = z;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 有参构造器，private</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Reflect</span><span class="params">(String x)</span> </span>&#123; <span class="keyword">this</span>.x = x; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">getX</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> x; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setX</span><span class="params">(String x)</span> </span>&#123; <span class="keyword">this</span>.x = x; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> String <span class="title">getY</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> y; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setY</span><span class="params">(String y)</span> </span>&#123; <span class="keyword">this</span>.y = y; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getZ</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> z; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setZ</span><span class="params">(String z)</span> </span>&#123; <span class="keyword">this</span>.z = z; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Reflect&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;x=&#x27;&quot;</span> + x + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, y=&#x27;&quot;</span> + y + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, z=&#x27;&quot;</span> + z + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>运行main方法，得到的结果是3个 <code>true</code>，说明通过这三种方法是过的获得Class类是一样的。</p>
+<h1 id="4-利用反射分析类的能力"><a href="#4-利用反射分析类的能力" class="headerlink" title="4. 利用反射分析类的能力"></a>4. 利用反射分析类的能力</h1><p>在java.lang.reflect 包中有三个类 <code>Field</code>、<code>Method</code> 和 <code>Constructor</code> 分别用于描述类的域、方法和构造器。这三个类都有一个叫做 <code>getName</code> 的方法，用来返回项目的名称。</p>
+<p>Field 类有一个 <code>getType</code> 方法，用来返回描述域所属类型的Class对象。Method 和 Constructor 类有能够报告参数类型的方法，Method 类还有一个可以报告 <code>返回类型</code> 的方法。</p>
+<p>这三个类还有一个叫做 <code>getModifiers</code> 的方法，它将返回一个整型数值，用不同的位开关描述public 和 static 这样的修饰符使用状况。另外，还可以利用 java.lang.reflect 包中的Modifier类的静态方法分析 <code>getModifiers</code> 返回的整型数值。例如，可以使用 Modifier 类中的isPublic、isPrivate 或isFinal判断方法或构造器是否是public、private 或final。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Reflect reflect = <span class="keyword">new</span> Reflect();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 三种方法获得Reflect类的对应Class</span></span><br><span class="line">        <span class="comment">// 1.class属性</span></span><br><span class="line">        Class&lt;Reflect&gt; reflectClass = Reflect.class;</span><br><span class="line">        <span class="comment">// 2.forName()方法</span></span><br><span class="line">        String path = <span class="string">&quot;reflect.Reflect&quot;</span>;</span><br><span class="line">        Class&lt;?&gt; class1 =  Class.forName(path);</span><br><span class="line">        <span class="comment">// 3.通过实例对象调用getClass()方法</span></span><br><span class="line">        Class&lt;? extends Reflect&gt; class2 = reflect.getClass();</span><br><span class="line"></span><br><span class="line">        System.out.println(reflectClass == class1);</span><br><span class="line">        System.out.println(reflectClass == class2);</span><br><span class="line">        System.out.println(class1 == class2);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 通过getFields()方法获得Reflect类的所有public域</span></span><br><span class="line">        Field[] fields = reflectClass.getFields();</span><br><span class="line">        System.out.println(<span class="string">&quot;public域：&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (Field field : fields)&#123;</span><br><span class="line">            printModifier(field.getName(), field.getModifiers());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 通过getMethods()方法获得Reflect类的所有public方法</span></span><br><span class="line">        Method[] methods = reflectClass.getMethods();</span><br><span class="line">        System.out.println(<span class="string">&quot;public方法：&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (Method method : methods)&#123;</span><br><span class="line">            printModifier(method.getName(), method.getModifiers());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 通过getConstructors()方法获得Reflect类的所有public构造器</span></span><br><span class="line">        Constructor&lt;?&gt;[] constructors = reflectClass.getConstructors();</span><br><span class="line">        System.out.println(<span class="string">&quot;public构造器：&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (Constructor&lt;?&gt; constructor : constructors)&#123;</span><br><span class="line">            printModifier(constructor.getName(), constructor.getModifiers());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printModifier</span><span class="params">(String name, <span class="keyword">int</span> modifiers)</span> </span>&#123;</span><br><span class="line">        System.out.print(name + <span class="string">&quot;\t&quot;</span>);</span><br><span class="line">        System.out.print(<span class="string">&quot;[public: &quot;</span> + Modifier.isPublic(modifiers) + <span class="string">&quot;\t&quot;</span>);</span><br><span class="line">        System.out.print(<span class="string">&quot;protected: &quot;</span> + Modifier.isProtected(modifiers) + <span class="string">&quot;\t&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;private: &quot;</span> + Modifier.isPrivate(modifiers) + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<p><img src="/StudyBlog.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/java/java学习资料/blogs/source/_posts/java-反射/1.png"></p>
+<h1 id="5-调用私有属性和方法"><a href="#5-调用私有属性和方法" class="headerlink" title="5. 调用私有属性和方法"></a>5. 调用私有属性和方法</h1><p><mark><strong>注意！</strong></mark></p>
+<p>Class类中的 <code>getFields</code>、``getMethods<code>、</code>getConstructors<code>方法只能返回该类提供的</code>public<code>域、方法和构造器数组，其中**包括父类**的</code>public` 成员。</p>
+<p>如果想调用该类的私有成员和方法，对应的应该调用 <code>getDeclaredField</code>、``getDeclaredField<code>、</code>getDeclaredMethod` 方法。当然，并不是说这几个方法只能返回私有属性的，<strong>事实上，他们可以返回该类中声明的全部属性、方法和构造器，但是，其中并不包括父类的成员。也就是说，只能访问自己的。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Reflect reflect = <span class="keyword">new</span> Reflect();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 三种方法获得Reflect类的对应Class</span></span><br><span class="line">        <span class="comment">// 1.class属性</span></span><br><span class="line">        Class&lt;Reflect&gt; reflectClass = Reflect.class;</span><br><span class="line">        <span class="comment">// 2.forName()方法</span></span><br><span class="line">        String path = <span class="string">&quot;reflect.Reflect&quot;</span>;</span><br><span class="line">        Class&lt;?&gt; class1 =  Class.forName(path);</span><br><span class="line">        <span class="comment">// 3.通过实例对象调用getClass()方法</span></span><br><span class="line">        Class&lt;? extends Reflect&gt; class2 = reflect.getClass();</span><br><span class="line"></span><br><span class="line">        System.out.println(reflectClass == class1);</span><br><span class="line">        System.out.println(reflectClass == class2);</span><br><span class="line">        System.out.println(class1 == class2);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获得私有域</span></span><br><span class="line">        Field x = reflectClass.getDeclaredField(<span class="string">&quot;x&quot;</span>);</span><br><span class="line">        <span class="comment">// 调用setAccessible方法，设置为true，才可以访问和修改私有属性</span></span><br><span class="line">        <span class="comment">// 对于私有方法和构造器，同样也需要设置为true</span></span><br><span class="line">        x.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        printModifier(x.getName(), x.getModifiers());</span><br><span class="line">        System.out.println(<span class="string">&quot;原先的值：&quot;</span> + x.get(reflect));</span><br><span class="line">        <span class="comment">// 改变私有域的值</span></span><br><span class="line">        x.set(reflect, <span class="string">&quot;new value x&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;修改后的值：&quot;</span> + x.get(reflect));</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用私有方法</span></span><br><span class="line">        Method getX = reflectClass.getDeclaredMethod(<span class="string">&quot;getX&quot;</span>);</span><br><span class="line">        getX.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        printModifier(getX.getName(), getX.getModifiers());</span><br><span class="line">        <span class="comment">// 输出的已经是改变后的值了</span></span><br><span class="line">        System.out.println(getX.invoke(reflect));</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用私有构造方法，重新构造一个对象</span></span><br><span class="line">        Constructor&lt;Reflect&gt; declaredConstructor = reflectClass.getDeclaredConstructor(String.class);</span><br><span class="line">        printModifier(declaredConstructor.getName(), declaredConstructor.getModifiers());</span><br><span class="line">        declaredConstructor.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        Reflect newInstance = declaredConstructor.newInstance(<span class="string">&quot;this is a new class by private constructor&quot;</span>);</span><br><span class="line">        System.out.println(newInstance);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printModifier</span><span class="params">(String name, <span class="keyword">int</span> modifiers)</span> </span>&#123;</span><br><span class="line">        System.out.print(name + <span class="string">&quot;\t&quot;</span>);</span><br><span class="line">        System.out.print(<span class="string">&quot;[public: &quot;</span> + Modifier.isPublic(modifiers) + <span class="string">&quot;\t&quot;</span>);</span><br><span class="line">        System.out.print(<span class="string">&quot;protected: &quot;</span> + Modifier.isProtected(modifiers) + <span class="string">&quot;\t&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;private: &quot;</span> + Modifier.isPrivate(modifiers) + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<p><img src="/StudyBlog.github.io/2021/08/01/java-%E5%8F%8D%E5%B0%84/java/java学习资料/blogs/source/_posts/java-反射/2.png"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/StudyBlog.github.io/tags/%E5%8F%8D%E5%B0%84/" rel="tag"><i class="fa fa-tag"></i> 反射</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/26/rabbitMQ-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/" rel="prev" title="rabbitMQ-基础概念和工作原理">
+                  <i class="fa fa-chevron-left"></i> rabbitMQ-基础概念和工作原理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" rel="next" title="mysql-mvcc多版本控制">
+                  mysql-mvcc多版本控制 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liu zhen</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/StudyBlog.github.io/js/comments.js"></script><script src="/StudyBlog.github.io/js/utils.js"></script><script src="/StudyBlog.github.io/js/motion.js"></script><script src="/StudyBlog.github.io/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

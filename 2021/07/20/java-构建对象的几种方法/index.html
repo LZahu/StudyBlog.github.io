@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/StudyBlog.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/StudyBlog.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/StudyBlog.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/StudyBlog.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/StudyBlog.github.io/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css" integrity="sha256-2H3fkXt6FEmrReK448mDVGKb3WW2ZZw35gI7vqHOE4Y=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lzahu.github.io","root":"/StudyBlog.github.io/","images":"/StudyBlog.github.io/images","scheme":"Gemini","version":"8.6.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/StudyBlog.github.io/js/config.js"></script>
+<meta name="description" content="经常在面试中被问到这个问题，所以查询资料总结了一下，主要还是关于反射和克隆的知识。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java-构建对象的几种方法">
+<meta property="og:url" content="https://lzahu.github.io/2021/07/20/java-%E6%9E%84%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="学习记录博客">
+<meta property="og:description" content="经常在面试中被问到这个问题，所以查询资料总结了一下，主要还是关于反射和克隆的知识。">
+<meta property="og:locale">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/20/java-%E6%9E%84%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/1.png">
+<meta property="article:published_time" content="2021-07-20T14:37:18.000Z">
+<meta property="article:modified_time" content="2021-07-23T15:15:01.304Z">
+<meta property="article:author" content="liu zhen">
+<meta property="article:tag" content="反射">
+<meta property="article:tag" content="对象创建">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/20/java-%E6%9E%84%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/1.png">
+
+
+<link rel="canonical" href="https://lzahu.github.io/2021/07/20/java-%E6%9E%84%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/07/20/java-%E6%9E%84%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/","path":"2021/07/20/java-构建对象的几种方法/","title":"java-构建对象的几种方法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>java-构建对象的几种方法 | 学习记录博客</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/StudyBlog.github.io/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/StudyBlog.github.io/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">学习记录博客</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">啦啦啦小菜鸡</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E6%96%B9%E6%B3%95%E6%A6%82%E8%BF%B0"><span class="nav-text">1. 方法概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%A6%81%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%B1%BBUserInfo"><span class="nav-text">2. 要创建对象的类UserInfo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-4%E7%A7%8D%E6%96%B9%E6%B3%95%E6%BC%94%E7%A4%BA"><span class="nav-text">3. 4种方法演示</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-overview">
+            <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="liu zhen"
+      src="/StudyBlog.github.io/images/head.jpg">
+  <p class="site-author-name" itemprop="name">liu zhen</p>
+  <div class="site-description" itemprop="description">小菜鸡的学习笔记</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/StudyBlog.github.io/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/StudyBlog.github.io/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/StudyBlog.github.io/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LZahu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LZahu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/StudyBlog.github.io/1171268809@qq.com" title="E-Mail → 1171268809@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+          </div>
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/07/20/java-%E6%9E%84%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
+      <meta itemprop="name" content="liu zhen">
+      <meta itemprop="description" content="小菜鸡的学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="学习记录博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java-构建对象的几种方法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-20 22:37:18" itemprop="dateCreated datePublished" datetime="2021-07-20T22:37:18+08:00">2021-07-20</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-07-23 23:15:01" itemprop="dateModified" datetime="2021-07-23T23:15:01+08:00">2021-07-23</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/StudyBlog.github.io/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">经常在面试中被问到这个问题，所以查询资料总结了一下，主要还是关于反射和克隆的知识。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="1-方法概述"><a href="#1-方法概述" class="headerlink" title="1. 方法概述"></a>1. 方法概述</h1><p>主要有4种方法，其中有2种方法是关于反射的，如下：</p>
+<ol>
+<li><code>new</code> 关键字，这是最常见的了</li>
+<li>通过全限定类名获取对象的 <code>Class</code>，然后根据 <code>Class</code> 的 <code>newInstance()</code> 方法获得对象实例</li>
+<li>通过反射获得对象的 <code>构造器</code>，然后根据构造器创建对象实例</li>
+<li>让对象实现 <code>Clonable</code> 接口，按需要重写 <code>clone()</code> 方法，要注意的是 <code>clone()</code> 方法是被 <code>protected</code> 修饰的，因此不能直接调用，所以我在实例中又另外创建了一个方法，作为外部接口</li>
+<li>利用 <code>IO流</code>，从文件中读取数据，并反序列化成对象，但前提是类必须实现 <code>Serializable</code> 接口</li>
+</ol>
+<h1 id="2-要创建对象的类UserInfo"><a href="#2-要创建对象的类UserInfo" class="headerlink" title="2. 要创建对象的类UserInfo"></a>2. 要创建对象的类UserInfo</h1><p>这里面我对UserInfo类设置了4个属性，1个无参构造器，1个有参构造器，重写了clone( )方法和toString( )方法，并另外创建了一个可被外部调用的克隆对象的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserInfo</span> <span class="keyword">implements</span> <span class="title">Cloneable</span>, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line">    <span class="keyword">private</span> String sex;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过反射创建对象，有的使用无参构造器，有的使用有参构造器</span></span><br><span class="line">    <span class="comment">// 因此，为了方便，创建了两种不同构造器</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserInfo</span><span class="params">()</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserInfo</span><span class="params">(String name, Integer age, String address, String sex)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">        <span class="keyword">this</span>.address = address;</span><br><span class="line">        <span class="keyword">this</span>.sex = sex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重写clone方法，但是注意方法是protected修饰的</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Object <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;</span><br><span class="line">        <span class="comment">// 这里我就没加特别处理了</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;com.study.UserInfo&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;name=&#x27;&quot;</span> + name + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, age=&quot;</span> + age +</span><br><span class="line">                <span class="string">&quot;, address=&#x27;&quot;</span> + address + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, sex=&#x27;&quot;</span> + sex + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向外界提供接口</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserInfo <span class="title">cloneUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        UserInfo user = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            user = (UserInfo) <span class="keyword">this</span>.clone();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (CloneNotSupportedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-4种方法演示"><a href="#3-4种方法演示" class="headerlink" title="3. 4种方法演示"></a>3. 4种方法演示</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CreateDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 第一种方法：new关键字</span></span><br><span class="line">        UserInfo user1 = <span class="keyword">new</span> UserInfo(<span class="string">&quot;me&quot;</span>, <span class="number">23</span>, <span class="string">&quot;南京&quot;</span>, <span class="string">&quot;男&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;user1: &quot;</span> + user1);</span><br><span class="line">        System.out.println(<span class="string">&quot;-----------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第二种方法：克隆</span></span><br><span class="line">        UserInfo user2 = user1.cloneUser();</span><br><span class="line">        System.out.println(user1 == user2);</span><br><span class="line">        System.out.println(<span class="string">&quot;user2: &quot;</span> + user2);</span><br><span class="line">        System.out.println(<span class="string">&quot;-----------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第三种方法：反射，先获得Class对象，再利用newInstance方法创建对象</span></span><br><span class="line">        UserInfo user3 = <span class="keyword">null</span>;</span><br><span class="line">        UserInfo user4 = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Class&lt;?&gt; UserInfoClass = Class.forName(<span class="string">&quot;com.study.UserInfo&quot;</span>);</span><br><span class="line">            <span class="comment">// 获得的是对象的无参构造函数</span></span><br><span class="line">            user3 = (UserInfo) UserInfoClass.newInstance();</span><br><span class="line">            <span class="comment">// 获得对象的有参构造函数，但是这种方法和下面要说的方法差不多</span></span><br><span class="line">            user4 = (UserInfo) UserInfoClass.getConstructor(String.class, Integer.class, String.class, String.class)</span><br><span class="line">                    .newInstance(<span class="string">&quot;小黑&quot;</span>, <span class="number">21</span>, <span class="string">&quot;合肥&quot;</span>, <span class="string">&quot;男&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;user3(无参构造函数): &quot;</span> + user3);</span><br><span class="line">        System.out.println(<span class="string">&quot;user4(有参构造函数): &quot;</span> + user4);</span><br><span class="line">        System.out.println(<span class="string">&quot;-----------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第四种方法：获取到构造器constructor，再利用newInstance方法创建对象</span></span><br><span class="line">        UserInfo user5 = <span class="keyword">null</span>;</span><br><span class="line">        UserInfo user6 = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 获得有参构造函数</span></span><br><span class="line">            Constructor&lt;UserInfo&gt; constructor = UserInfo.class.getConstructor(String.class, Integer.class, String.class, String.class);</span><br><span class="line">            user5 = constructor.newInstance(<span class="string">&quot;小红&quot;</span>, <span class="number">24</span>, <span class="string">&quot;庐江&quot;</span>, <span class="string">&quot;男&quot;</span>);</span><br><span class="line">            <span class="comment">// 获得无参构造函数</span></span><br><span class="line">            constructor = UserInfo.class.getConstructor();</span><br><span class="line">            user6 = constructor.newInstance();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;user5(有参构造函数): &quot;</span> + user5);</span><br><span class="line">        System.out.println(<span class="string">&quot;user6(无参构造函数): &quot;</span> + user6);</span><br><span class="line">        System.out.println(<span class="string">&quot;-----------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第五种方法：通过IO流创建对象</span></span><br><span class="line">        File file = <span class="keyword">new</span> File(<span class="string">&quot;C:\\Users\\LiuZhen\\Desktop\\object.txt&quot;</span>);</span><br><span class="line">        writeObjectToFile(user1, file);</span><br><span class="line">        UserInfo user7 = readObjectFromFile(file);</span><br><span class="line">        System.out.println(<span class="string">&quot;user7: &quot;</span> + user7);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将UserInfo对象写入到文件file中</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> userInfo 待写入的对象</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> file     要写入的文件</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">writeObjectToFile</span><span class="params">(UserInfo userInfo, File file)</span> </span>&#123;</span><br><span class="line">        FileOutputStream fileOutputStream = <span class="keyword">null</span>;</span><br><span class="line">        ObjectOutputStream objectOutputStream = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            fileOutputStream = <span class="keyword">new</span> FileOutputStream(file);</span><br><span class="line">            objectOutputStream = <span class="keyword">new</span> ObjectOutputStream(fileOutputStream);</span><br><span class="line">            objectOutputStream.writeObject(userInfo);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (fileOutputStream != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    fileOutputStream.close();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (objectOutputStream != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    objectOutputStream.close();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从文件中读取，并反序列化成对象实例</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> file 要读取的文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 对象实例</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> UserInfo <span class="title">readObjectFromFile</span><span class="params">(File file)</span> </span>&#123;</span><br><span class="line">        UserInfo userInfo = <span class="keyword">null</span>;</span><br><span class="line">        FileInputStream fileInputStream = <span class="keyword">null</span>;</span><br><span class="line">        ObjectInputStream objectInputStream = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            fileInputStream = <span class="keyword">new</span> FileInputStream(file);</span><br><span class="line">            objectInputStream = <span class="keyword">new</span> ObjectInputStream(fileInputStream);</span><br><span class="line">            userInfo = (UserInfo) objectInputStream.readObject();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (fileInputStream != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    fileInputStream.close();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (objectInputStream != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    objectInputStream.close();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> userInfo;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<p><img src="/StudyBlog.github.io/2021/07/20/java-%E6%9E%84%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/1.png"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/StudyBlog.github.io/tags/%E5%8F%8D%E5%B0%84/" rel="tag"><i class="fa fa-tag"></i> 反射</a>
+              <a href="/StudyBlog.github.io/tags/%E5%AF%B9%E8%B1%A1%E5%88%9B%E5%BB%BA/" rel="tag"><i class="fa fa-tag"></i> 对象创建</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/" rel="prev" title="redis-集群">
+                  <i class="fa fa-chevron-left"></i> redis-集群
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/23/java-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" rel="next" title="java-单例模式写法">
+                  java-单例模式写法 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liu zhen</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/StudyBlog.github.io/js/comments.js"></script><script src="/StudyBlog.github.io/js/utils.js"></script><script src="/StudyBlog.github.io/js/motion.js"></script><script src="/StudyBlog.github.io/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

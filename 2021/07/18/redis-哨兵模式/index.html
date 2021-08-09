@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/StudyBlog.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/StudyBlog.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/StudyBlog.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/StudyBlog.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/StudyBlog.github.io/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css" integrity="sha256-2H3fkXt6FEmrReK448mDVGKb3WW2ZZw35gI7vqHOE4Y=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lzahu.github.io","root":"/StudyBlog.github.io/","images":"/StudyBlog.github.io/images","scheme":"Gemini","version":"8.6.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/StudyBlog.github.io/js/config.js"></script>
+<meta name="description" content="介绍了关于哨兵模式的原理、配置和工作流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis-哨兵模式">
+<meta property="og:url" content="https://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="学习记录博客">
+<meta property="og:description" content="介绍了关于哨兵模式的原理、配置和工作流程。">
+<meta property="og:locale">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/2.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/3.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/4.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/5.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/6.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/7.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/8.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/9.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/10.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/11.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/12.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/13.png">
+<meta property="article:published_time" content="2021-07-18T06:47:43.000Z">
+<meta property="article:modified_time" content="2021-07-18T08:53:22.446Z">
+<meta property="article:author" content="liu zhen">
+<meta property="article:tag" content="主从复制">
+<meta property="article:tag" content="哨兵模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1.png">
+
+
+<link rel="canonical" href="https://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/","path":"2021/07/18/redis-哨兵模式/","title":"redis-哨兵模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>redis-哨兵模式 | 学习记录博客</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/StudyBlog.github.io/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/StudyBlog.github.io/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">学习记录博客</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">啦啦啦小菜鸡</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="nav-text">1. 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE"><span class="nav-text">2. 如何配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-master%E5%AE%95%E6%9C%BA"><span class="nav-text">3. master宕机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-sentinel%E6%89%A7%E8%A1%8C%E5%88%87%E6%8D%A2"><span class="nav-text">3.1. sentinel执行切换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E7%AE%80%E5%8D%95%E6%AD%A5%E9%AA%A4"><span class="nav-text">3.2. 简单步骤</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-sentinel%E7%9A%84%E4%BB%BB%E5%8A%A1"><span class="nav-text">4. sentinel的任务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-sentinel%E8%8A%82%E7%82%B9%E9%9B%86%E5%90%88"><span class="nav-text">5. sentinel节点集合</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-sentinel%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-text">6. sentinel的工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-%E4%B8%BB%E8%A7%82%E4%B8%8B%E7%BA%BF"><span class="nav-text">6.1 主观下线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-%E5%AE%A2%E8%A7%82%E4%B8%8B%E7%BA%BF"><span class="nav-text">6.2 客观下线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-3-%E6%B5%81%E7%A8%8B"><span class="nav-text">6.3. 流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-%E5%A6%82%E4%BD%95%E9%80%89%E5%8F%96%E6%96%B0%E7%9A%84master"><span class="nav-text">7. 如何选取新的master</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-overview">
+            <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="liu zhen"
+      src="/StudyBlog.github.io/images/head.jpg">
+  <p class="site-author-name" itemprop="name">liu zhen</p>
+  <div class="site-description" itemprop="description">小菜鸡的学习笔记</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/StudyBlog.github.io/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/StudyBlog.github.io/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/StudyBlog.github.io/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LZahu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LZahu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/StudyBlog.github.io/1171268809@qq.com" title="E-Mail → 1171268809@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+          </div>
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
+      <meta itemprop="name" content="liu zhen">
+      <meta itemprop="description" content="小菜鸡的学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="学习记录博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis-哨兵模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-07-18 14:47:43 / 修改时间：16:53:22" itemprop="dateCreated datePublished" datetime="2021-07-18T14:47:43+08:00">2021-07-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/StudyBlog.github.io/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">介绍了关于哨兵模式的原理、配置和工作流程。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>之前说过redis的主从复制，里面有提到，如果master宕机了，那么应该及时切换master，以便于及时响应客户端要求。那么，哨兵模式（sentinel）就可以自动完成这样的功能。</p>
+<h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p><mark><strong>哨兵模式是一种机制，它能够在后台监控master是否发生故障，如果发生故障了，就会根据投票数自动地将slaver切换为master。</strong></mark></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1.png" alt="image-20210718145911399"></p>
+<h1 id="2-如何配置"><a href="#2-如何配置" class="headerlink" title="2. 如何配置"></a>2. 如何配置</h1><p>前提设置：6379为master，6380和6381为slaver。</p>
+<p>在 <code>data/</code> 文件夹中新建sentinel.conf文件，并在文件中输入以下指令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor mymaster 127.0.0.1 6379 1</span><br></pre></td></tr></table></figure>
+
+<p>实际上， <code>sentinel monitor</code> 的语句格式如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> &lt;master-group-name&gt; 给master起个名字</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> &lt;ip&gt; master的ip</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> &lt;port&gt; master的port</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> &lt;quorum&gt; 指的是确认master不可达需要经过多少哨兵同意，从而才能将master标记为失效，并出发故障转移机制</span></span><br><span class="line">sentinel monitor &lt;master-group-name&gt; &lt;ip&gt; &lt;port&gt; &lt;quorum&gt;</span><br></pre></td></tr></table></figure>
+
+<p>之后，输入命令 <code>redis-sentinel data/sentinel.conf</code>，便可以启动哨兵模式：</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/2.png"></p>
+<p>如图所示，启动后可以看到哨兵记录了master和slaver的详细信息，并保存了master和slaver之间的关系。</p>
+<h1 id="3-master宕机"><a href="#3-master宕机" class="headerlink" title="3. master宕机"></a>3. master宕机</h1><h2 id="3-1-sentinel执行切换"><a href="#3-1-sentinel执行切换" class="headerlink" title="3.1. sentinel执行切换"></a>3.1. sentinel执行切换</h2><p>假如master宕机了，那么sentinel就会自动切换master和slaver。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/3.png"></p>
+<p>如图所示，6379作为master宕机之后，sentinel将6380切换为master，6381的master由6379切换为6380，并且，6379不再是master，而是作为6380的slaver。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/4.png"></p>
+<h2 id="3-2-简单步骤"><a href="#3-2-简单步骤" class="headerlink" title="3.2. 简单步骤"></a>3.2. 简单步骤</h2><p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/5.png"></p>
+<p>正常情况下，sentinel的工作方式如上所示。sentinel会监视master和slaver，同时master和slaver之间会进行数据同步。</p>
+<p>但是，如果master宕机了，那么sentinel就会察觉到，并且master和slaver之间的数据同步停止。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/6.png"></p>
+<p>这个时候，sentinel就会执行切换，从slaver中选取一个作为新的master，并且将其他slaver的master更新为当前master，而原先宕机的master就会变为slaver。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/7.png"></p>
+<h1 id="4-sentinel的任务"><a href="#4-sentinel的任务" class="headerlink" title="4. sentinel的任务"></a>4. sentinel的任务</h1><ol>
+<li><mark><strong>监控</strong></mark>：sentinel会不断地定期检查当前的master和slaver是否在线？master和slaver之间的连接是否正常？是否可以正常进行数据同步？</li>
+<li><mark><strong>提醒</strong></mark>：当被监控的某个redis服务器发生了故障，sentinel可以向应用端或者其他应用程序发送通知。</li>
+<li><mark><strong>自动故障迁移</strong></mark>：当master不能正常工作时，sentinel会进行自动故障迁移操作，会将其中一个slaver变为新的master，让其他的slaver都变成当前新master的slaver。当客户端试图连接已经宕机的master时，sentinel也会向客户端发送新的master的地址和端口，以便于客户端能够正确访问。</li>
+</ol>
+<h1 id="5-sentinel节点集合"><a href="#5-sentinel节点集合" class="headerlink" title="5. sentinel节点集合"></a>5. sentinel节点集合</h1><p>实际上，sentinel可以不止有一个，而是多个sentinel集中在一起，构成一个sentinel节点集合。在这个集合内部，sentinel之间相互监控，而对于这个集合整体而言，它可以监控其他master和slaver。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/8.png"></p>
+<h1 id="6-sentinel的工作流程"><a href="#6-sentinel的工作流程" class="headerlink" title="6. sentinel的工作流程"></a>6. sentinel的工作流程</h1><h2 id="6-1-主观下线"><a href="#6-1-主观下线" class="headerlink" title="6.1 主观下线"></a>6.1 主观下线</h2><p>主观下线适用于所有master和slaver。如果在 <code>down-after-milliseconds</code> 毫秒内，sentinel 没有收到目标节点的有效回复，则会判该节点为主观下线。</p>
+<p>通俗点来说，<code>down-after-milliseconds</code> 参数代表的是一个时间长度，sentinel节点向目标节点发送 <code>ping</code> 命令，<strong>如果接收到目标节点回复的时间超过了这个时间长度</strong>，那么，这个sentinel节点就认为目标节点已经处于主观下线状态了。顾名思义，主观下线针对于所有的master和slaver，但是只针对单个sentinel节点，其他的sentinel节点是否认为目标节点处于主观下线的结果对此sentinel节点不影响。</p>
+<h2 id="6-2-客观下线"><a href="#6-2-客观下线" class="headerlink" title="6.2 客观下线"></a>6.2 客观下线</h2><p>由于某个sentinel节点认为目标节点处于主观下线，但是，sentinel节点集合包括了很多个sentinel节点，并不是一个sentinel节点认为它怎样就是怎样的。因此，sentinel节点会通过 <code>sentinel is-master-down-by-addr</code> 命令，向其他的sentinel节点询问该目标节点的状态。</p>
+<p>在第2部分中，sentinel设置指令中有一个参数叫做 <code>quorum</code>，它的作用是指<mark><strong>如果认为目标节点处于主观下线状态的sentinel节点个数大于此参数的值，那么该目标节点就处于客观下线了，</strong></mark>意思就是大部分sentinel节点都认为它下线了，它就是真的下线了。</p>
+<h2 id="6-3-流程"><a href="#6-3-流程" class="headerlink" title="6.3. 流程"></a>6.3. 流程</h2><ol>
+<li><p>每个sentinel以每秒一次的频率向其他的sentinel节点、master和slaver发送 <code>ping</code> 命令，验证其是否在线。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/9.png"></p>
+</li>
+<li><p>如果某一个节点距离最后一次有效恢复 <code>ping</code> 命令的时间超过 <code>down-after-milliseconds</code>，那么这个节点就会被sentinel标记为主观下线。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/10.png"></p>
+</li>
+<li><p>假如被标记为主观下线的节点是master，那么正在监控master的所有sentinel节点都会以每秒一次的频率确认master是否处于各自sentinel节点的主观下线状态。</p>
+<ol>
+<li>假如超过 <code>quorum</code> 个sentinel节点认为master处于主观下线状态，那么master就会转为客观下线状态。（一般情况下，sentinel节点会以 <code>每十秒一次</code> 的频率向master和slave发送 <code>info</code> 命令，但是，当master被标记为客观下线时，sentinel节点会以 <code>每秒一次</code> 的频率发送 <code>info</code> 命令）</li>
+</ol>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/11.png"></p>
+</li>
+<li><p>各个sentinel节点会协商master的状态，如果master处于 <code>sdown</code> 状态，就会投票自动选出新的master，并将其他的slaver与新的master做数据同步和一些设置。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/12.png"></p>
+</li>
+<li><p>如果没有足够数量的sentinel节点认为master下线了，那么master的客观下线状态就会被移除，前提是master向sentinel节点返回了有效的 <code>ping</code> 命令回复。然后，继续工作。</p>
+</li>
+</ol>
+<h1 id="7-如何选取新的master"><a href="#7-如何选取新的master" class="headerlink" title="7. 如何选取新的master"></a>7. 如何选取新的master</h1><p>sentinel节点并不是随意选取某一个slaver作为新的master，而是<mark><strong>依次根据3个条件来选取：</strong></mark></p>
+<ol>
+<li>优先级 <code>slave-priority</code>：优先级在redis.conf中默认：<code>slave-priority 100</code>，值越小优先级越高</li>
+<li>偏移量 <code>offset</code>：它的作用是用来表示哪个slaver获得master数据是最全的，最全的当然优先</li>
+<li><code>runid</code>：每个redis实例都会自带的一个变量，越小越优先</li>
+</ol>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/13.png" alt="image-20210718165256147"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/StudyBlog.github.io/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" rel="tag"><i class="fa fa-tag"></i> 主从复制</a>
+              <a href="/StudyBlog.github.io/tags/%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 哨兵模式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" rel="prev" title="redis-主从复制">
+                  <i class="fa fa-chevron-left"></i> redis-主从复制
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/" rel="next" title="redis-集群">
+                  redis-集群 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liu zhen</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/StudyBlog.github.io/js/comments.js"></script><script src="/StudyBlog.github.io/js/utils.js"></script><script src="/StudyBlog.github.io/js/motion.js"></script><script src="/StudyBlog.github.io/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

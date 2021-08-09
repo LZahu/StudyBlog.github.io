@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/StudyBlog.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/StudyBlog.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/StudyBlog.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/StudyBlog.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/StudyBlog.github.io/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css" integrity="sha256-2H3fkXt6FEmrReK448mDVGKb3WW2ZZw35gI7vqHOE4Y=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lzahu.github.io","root":"/StudyBlog.github.io/","images":"/StudyBlog.github.io/images","scheme":"Gemini","version":"8.6.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/StudyBlog.github.io/js/config.js"></script>
+<meta name="description" content="介绍了redis主从复制的原理、作用和详细复制过程，总结了一些常见问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis-主从复制">
+<meta property="og:url" content="https://lzahu.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/index.html">
+<meta property="og:site_name" content="学习记录博客">
+<meta property="og:description" content="介绍了redis主从复制的原理、作用和详细复制过程，总结了一些常见问题。">
+<meta property="og:locale">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/image-20210717155525289.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/1.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/2.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/3.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/4.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/5.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/20200531233524414.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/6.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/20200601150500247.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/7.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/8.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/20200601170651307.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/2020060116425459.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E6%97%A5%E5%BF%97.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/master%E9%87%8D%E5%90%AF.png">
+<meta property="article:published_time" content="2021-07-18T02:25:49.000Z">
+<meta property="article:modified_time" content="2021-07-18T06:52:17.035Z">
+<meta property="article:author" content="liu zhen">
+<meta property="article:tag" content="主从复制">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/image-20210717155525289.png">
+
+
+<link rel="canonical" href="https://lzahu.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/","path":"2021/07/18/redis-主从复制/","title":"redis-主从复制"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>redis-主从复制 | 学习记录博客</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/StudyBlog.github.io/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/StudyBlog.github.io/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">学习记录博客</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">啦啦啦小菜鸡</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E4%BB%8B%E7%BB%8D"><span class="nav-text">1. 主从复制介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-text">1.1. 是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E4%BD%9C%E7%94%A8"><span class="nav-text">1.2. 作用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE"><span class="nav-text">2. 如何配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">2.1. 配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E6%9F%A5%E7%9C%8B%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF"><span class="nav-text">2.2. 查看主从复制的相关信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E8%AE%BE%E7%BD%AEslaver"><span class="nav-text">2.3. 设置slaver</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB"><span class="nav-text">3. 读写分离</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-text">4. 工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%E8%BF%87%E7%A8%8B"><span class="nav-text">4.1.  建立连接过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E8%BF%87%E7%A8%8B"><span class="nav-text">4.2. 数据同步过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-runid"><span class="nav-text">4.2.1. runid</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-2-offset"><span class="nav-text">4.2.2. offset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-3-%E5%85%A8%E9%87%8F%E5%A4%8D%E5%88%B6%E5%92%8C%E9%83%A8%E5%88%86%E5%A4%8D%E5%88%B6"><span class="nav-text">4.2.3. 全量复制和部分复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-4-%E5%A4%8D%E5%88%B6%E7%A7%AF%E5%8E%8B%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-text">4.2.4. 复制积压缓冲区</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-%E5%91%BD%E4%BB%A4%E4%BC%A0%E6%92%AD%E8%BF%87%E7%A8%8B"><span class="nav-text">4.3. 命令传播过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-1-%E5%BF%83%E8%B7%B3%E6%9C%BA%E5%88%B6"><span class="nav-text">4.3.1. 心跳机制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-%E5%BA%94%E7%94%A8%E4%B8%AD%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">5. 应用中的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">5.1. 读写分离的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-1-%E5%BB%B6%E8%BF%9F%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%80%E8%87%B4%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">5.1.1. 延迟与数据不一致的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-2-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98"><span class="nav-text">5.1.2. 数据过期问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-3-%E6%95%85%E9%9A%9C%E5%88%87%E6%8D%A2%E9%97%AE%E9%A2%98"><span class="nav-text">5.1.3. 故障切换问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-%E8%BF%9E%E6%8E%A5%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98"><span class="nav-text">5.2. 连接超时问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-1-%E8%B6%85%E6%97%B6%E5%88%A4%E6%96%AD%E7%9A%84%E6%84%8F%E4%B9%89"><span class="nav-text">5.2.1. 超时判断的意义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-2-%E5%88%A4%E6%96%AD%E6%9C%BA%E5%88%B6"><span class="nav-text">5.2.2. 判断机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-3-%E5%8F%AF%E8%83%BD%E4%BC%9A%E5%AF%BC%E8%87%B4%E8%BF%9E%E6%8E%A5%E8%B6%85%E6%97%B6%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="nav-text">5.2.3. 可能会导致连接超时的一些问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-4-%E5%A4%8D%E5%88%B6%E4%B8%AD%E6%96%AD%E9%97%AE%E9%A2%98"><span class="nav-text">5.2.4. 复制中断问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-%E4%BC%98%E5%8C%96%E6%8A%80%E5%B7%A7"><span class="nav-text">6. 优化技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-%E9%A6%96%E6%AC%A1%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5"><span class="nav-text">6.1. 首次建立连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-master%E9%87%8D%E5%90%AF"><span class="nav-text">6.2. master重启</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-1-master%E5%AE%95%E6%9C%BA"><span class="nav-text">6.2.1. master宕机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-2-master%E5%AE%89%E5%85%A8%E9%87%8D%E5%90%AF"><span class="nav-text">6.2.2. master安全重启</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-3-slaver%E9%87%8D%E5%90%AF"><span class="nav-text">6.3. slaver重启</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-4-%E7%BD%91%E7%BB%9C%E4%B8%AD%E6%96%AD"><span class="nav-text">6.4. 网络中断</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-1-%E6%97%B6%E9%97%B4%E7%9F%AD%E6%9A%82"><span class="nav-text">6.4.1. 时间短暂</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-2-%E6%97%B6%E9%97%B4%E8%BE%83%E9%95%BF"><span class="nav-text">6.4.2. 时间较长</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-3-%E4%BB%8B%E4%BA%8E%E5%89%8D%E9%9D%A2%E4%B8%A4%E7%A7%8D%E6%83%85%E5%86%B5%E4%B9%8B%E9%97%B4"><span class="nav-text">6.4.3. 介于前面两种情况之间</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-overview">
+            <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="liu zhen"
+      src="/StudyBlog.github.io/images/head.jpg">
+  <p class="site-author-name" itemprop="name">liu zhen</p>
+  <div class="site-description" itemprop="description">小菜鸡的学习笔记</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/StudyBlog.github.io/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/StudyBlog.github.io/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/StudyBlog.github.io/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LZahu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LZahu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/StudyBlog.github.io/1171268809@qq.com" title="E-Mail → 1171268809@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+          </div>
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
+      <meta itemprop="name" content="liu zhen">
+      <meta itemprop="description" content="小菜鸡的学习笔记">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="学习记录博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis-主从复制
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-07-18 10:25:49 / 修改时间：14:52:17" itemprop="dateCreated datePublished" datetime="2021-07-18T10:25:49+08:00">2021-07-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/StudyBlog.github.io/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">介绍了redis主从复制的原理、作用和详细复制过程，总结了一些常见问题。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="1-主从复制介绍"><a href="#1-主从复制介绍" class="headerlink" title="1. 主从复制介绍"></a>1. 主从复制介绍</h1><h2 id="1-1-是什么"><a href="#1-1-是什么" class="headerlink" title="1.1. 是什么"></a>1.1. 是什么</h2><p><mark><strong>主从复制是一种机制</strong></mark>，指的是当主机数据更新后，根据配置和策略，自动将数据同步到备机的master/slaver机制，一般而言，master以写为主，slaver以读为主。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/image-20210717155525289.png"></p>
+<h2 id="1-2-作用"><a href="#1-2-作用" class="headerlink" title="1.2. 作用"></a>1.2. 作用</h2><p>主要从两个方面来考虑：</p>
+<ol>
+<li><mark><strong>容灾快速恢复</strong></mark>。如果只有一个redis服务器的话，假设这个服务器宕机了，那么意味着系统崩溃，将无法提供服务，但是，如果有其他的redis服务器作为slaver，那么，就算是master宕机了，slaver也可以提供服务，并且，由于主从之间的数据同步，slaver中的数据和master中的数据是相同的，也就是说slaver可以提供相同的服务。</li>
+<li><mark><strong>读写分离，负载均衡，性能扩展</strong></mark>。如果只有一个redis服务器的话，当大量请求发送过来后，可能会造成系统性能下降，但是如果设置了主从复制，那么slaver可以分担master的负载，尤其在写少读多的情况下，通过多个从节点分担读负载，可以大大提高redis服务器的并发量和负载。</li>
+</ol>
+<p>另外还有一点是：它是高可用的基石，主从复制是哨兵和集群能够实施的基础，因此我们可以说主从复制是高可用的基石。（这个我感觉次要一点，了解即可）</p>
+<h1 id="2-如何配置"><a href="#2-如何配置" class="headerlink" title="2. 如何配置"></a>2. 如何配置</h1><h2 id="2-1-配置文件"><a href="#2-1-配置文件" class="headerlink" title="2.1. 配置文件"></a>2.1. 配置文件</h2><p>我在<code>/usr/local/bin</code>文件夹下新建了一个文件夹<code>data/</code>，用来存放redis的conf文件：</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/1.png"></p>
+<p>其中，redis6379.conf内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">include /etc/redis.conf          # 包含源文件的一些配置</span><br><span class="line">pidfile /var/run/redis_6379.pid</span><br><span class="line">port 6379                        # 端口号</span><br><span class="line">dbfilename dump6379.rdb          # rdb文件</span><br><span class="line">logfile &quot;6379.log&quot;               # 日志文件</span><br><span class="line">appendfilename &quot;append6379.aof&quot;  # aof文件</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2-查看主从复制的相关信息"><a href="#2-2-查看主从复制的相关信息" class="headerlink" title="2.2. 查看主从复制的相关信息"></a>2.2. 查看主从复制的相关信息</h2><p>使用<code>info replication</code>命令可以查看主从复制的相关信息：</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/2.png"></p>
+<h2 id="2-3-设置slaver"><a href="#2-3-设置slaver" class="headerlink" title="2.3. 设置slaver"></a>2.3. 设置slaver</h2><p><mark><strong>配从不配主</strong></mark>，对于从机，使用<code>slaveof ip port</code>命令来设置，比如，我设置6379为master，6380和6381为slaver，那么只需要对6380和6381执行<code>slaveof 127.0.0.1 6379</code>即可。</p>
+<p>6380和6381作为slaver，如下所示：</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/3.png"></p>
+<p>6379作为master，如下所示：</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/4.png"></p>
+<p>可以看出，当两台slaver执行了<code>slaveof 127.0.0.1 6379</code>命令后，master和slaver的配置信息均有变化，并一一对应。</p>
+<h1 id="3-读写分离"><a href="#3-读写分离" class="headerlink" title="3. 读写分离"></a>3. 读写分离</h1><p>一般来说，master负责写，slaver负责读，如果在slaver上执行写操作，会报错，如下：</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/5.png"></p>
+<blockquote>
+<p><em>其实，如果想让slaver可以执行写操作的话，也是可以的。这需要在配置文件中修改设置参数 <code>replica-read-only</code> ，原本是yes，将其改为no即可。</em></p>
+</blockquote>
+<h1 id="4-工作原理"><a href="#4-工作原理" class="headerlink" title="4. 工作原理"></a>4. 工作原理</h1><blockquote>
+<p><mark><strong>主从复制的工作流程大致分为3个阶段：</strong></mark></p>
+<ol>
+<li><strong>建立连接过程：指的是master和slaver连接的过程</strong></li>
+<li><strong>数据同步过程：指的是master将数据同步给slaver的过程</strong></li>
+<li><strong>命令传播过程：指的是master和slaver之间反复同步数据的过程</strong></li>
+</ol>
+</blockquote>
+<h2 id="4-1-建立连接过程"><a href="#4-1-建立连接过程" class="headerlink" title="4.1.  建立连接过程"></a>4.1.  建立连接过程</h2><p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/20200531233524414.png"></p>
+<p><mark><strong>以上是建立连接的详细过程，对于slaver而言，简单的来说，分为以下几步：</strong></mark></p>
+<ol>
+<li><p><strong>发送连接指令</strong></p>
+</li>
+<li><p><strong>设置和保存master的地址和端口信息</strong></p>
+<p>从节点服务器内部维护了两个字段，即<code>master_host</code>和<code>master_port</code>字段，用于存储主节点的ip和port信息，可以用<code>info replication</code>指令来查看。</p>
+</li>
+<li><p><strong>建立socket连接</strong></p>
+<p>从节点每秒1次调用<strong>复制定时函数</strong><code>replicationCron()</code>，如果发现了有主节点可以连接，便会根据主节点的ip和port，创建socket连接。如果连接成功，则：</p>
+<p><strong>从节点：</strong>为该socket建立一个专门处理复制工作的文件事件处理器，负责后续的复制工作，如接收RDB文件、接收命令传播等。</p>
+<p><strong>主节点：</strong>接收到从节点的socket连接后（即accept之后），为该socket创建相应的客户端状态，并将从节点看做是连接到主节点的一个客户端，后面的步骤会以从节点向主节点发送命令请求的形式来进行。</p>
+</li>
+<li><p><strong>持续发送ping命令</strong></p>
+<p>从节点成为主节点的客户端之后，<strong>发送ping命令进行首次请求</strong>，目的是：检查socket连接是否可用，以及主节点当前是否能够处理请求。</p>
+<p>从节点发送<code>ping</code>命令后，可能出现<strong>3种情况</strong>：</p>
+<p>（1）返回<code>pong</code>：说明socket连接正常，且主节点当前可以处理请求，复制过程继续。</p>
+<p>（2）超时：一定时间后从节点仍未收到主节点的回复，说明socket连接不可用，则从节点断开socket连接，并重连。</p>
+<p>（3）返回<code>pong</code>以外的结果：如果主节点返回其他结果，如正在处理超时运行的脚本，说明主节点当前无法处理命令，则从节点断开socket连接，并重连。</p>
+</li>
+<li><p><strong>身份验证</strong></p>
+<p>如果从节点中设置了<code>masterauth</code>选项，则从节点需要向主节点进行身份验证；没有设置该选项，则不需要验证。从节点进行身份验证是通过向主节点发送auth命令进行的，auth命令的参数即为配置文件中的<code>masterauth</code>的值。</p>
+<p>如果主节点设置密码的状态，与从节点<code>masterauth</code>的状态一致（一致是指都存在，且密码相同，或者都不存在），则身份验证通过，复制过程继续；如果不一致，则从节点断开socket连接，并重连。</p>
+</li>
+<li><p><strong>发送slaver端口信息</strong></p>
+<p>身份验证之后，从节点会向主节点发送其监听的端口号（前述例子中为6380），主节点将该信息保存到该从节点对应的客户端的<code>slave_listening_port</code>字段中（其实没啥用）。</p>
+</li>
+</ol>
+<p>可以调出master和slaver的日志来查看：(日志可能不完善，但是大致流程还是能看出来的)</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/6.png"></p>
+<h2 id="4-2-数据同步过程"><a href="#4-2-数据同步过程" class="headerlink" title="4.2. 数据同步过程"></a>4.2. 数据同步过程</h2><p>数据同步分为两种情况：首次连接的同步和连接过后的同步。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/20200601150500247.png"></p>
+<p>主从节点之间的连接建立以后，便可以开始进行数据同步，该阶段可以理解为从节点数据的初始化。<mark><strong>具体执行的方式是：</strong></mark>从节点向主节点发送<code>psync</code>命令（Redis2.8以前是sync命令），开始同步。</p>
+<blockquote>
+<p><strong>需要注意的是，在数据同步阶段之前，从节点是主节点的客户端，主节点不是从节点的客户端；而到了这一阶段及以后，主从节点互为客户端。原因在于：在此之前，主节点只需要响应从节点的请求即可，不需要主动发请求，而在数据同步阶段和后面的命令传播阶段，主节点需要主动向从节点发送请求（如推送缓冲区中的写命令），才能完成复制。</strong></p>
+</blockquote>
+<p>当从节点第一次连接主节点时，先会执行一次全量复制这次的全量复制是无法避免的。全量复制执行完成后，主节点就会发送复制积压缓冲区的数据，然后从节点就会执行 <code>bgrewriteaof</code> 恢复数据，这也就是部分复制。</p>
+<h3 id="4-2-1-runid"><a href="#4-2-1-runid" class="headerlink" title="4.2.1. runid"></a>4.2.1. runid</h3><p>redis在启动时会自动生成一个随机的id（这里需要注意的是每次启动的id都会不一样），是由40个随机的十六进制字符串组成，用来唯一识别一个redis节点。</p>
+<p>在主从复制初次启动时，master会把自己的 <code>runid</code> 发送给slave，slave会保存master的这个id，我们可以使用 <code>info</code> 命令查看。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/7.png"></p>
+<h3 id="4-2-2-offset"><a href="#4-2-2-offset" class="headerlink" title="4.2.2. offset"></a>4.2.2. offset</h3><p><strong>个人理解就相当于数组的下标一样</strong>，在master中，offset记录最新的数据指令在复制挤压缓冲区中的位置，在slaver中，offset记录本次数据同步到master复制挤压缓冲区中的哪里了。在下一次同步过程中，master经过对于这两个offset，就可以知道有哪些数据还没有同步。</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/8.png"></p>
+<h3 id="4-2-3-全量复制和部分复制"><a href="#4-2-3-全量复制和部分复制" class="headerlink" title="4.2.3. 全量复制和部分复制"></a>4.2.3. 全量复制和部分复制</h3><p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/20200601170651307.png"></p>
+<p><mark><strong>对以上流程做简单的介绍：</strong></mark></p>
+<ol>
+<li><p>从节点发送指令 <code>psync runid offset</code> 找对应的 <code>runid</code> 索取数据。但是这里可以考虑一下，当从节点第一次连接的时候根本就不知道主节点的 <code>runid</code> 和 <code>offset</code> 。所以第一次发送的指令是 <code>psync ？ -1</code> 意思就是主节点的数据我全要。</p>
+</li>
+<li><p>主节点开始执行 <code>bgsave</code> 生成RDB文件，记录当前的复制偏移量 <code>offset</code></p>
+</li>
+<li><p>主节点这个时候会把自己的<code>runid</code> 和 <code>offset</code> 通过 <code>+FULLRESYNC runid offset</code> 指令 通过socket发送RDB文件给从节点。</p>
+</li>
+<li><p>从节点接收到 <code>+FULLRESYNC</code> 保存主节点的 <code>runid</code> 和 <code>offset</code> 然后清空当前所有数据，通过socket接收RDB文件，开始恢复RDB数据。</p>
+</li>
+<li><p>在全量复制后，从节点已经获取到了主节点的 <code>runid</code> 和 <code>offset</code>，开始发送指令``psync runid offset`</p>
+</li>
+<li><p>主节点接收指令，判断 <code>runid</code> 是否匹配，判断 <code>offset</code> 是否在复制缓冲区中。</p>
+</li>
+<li><p>主节点判断 <code>runid</code> 和 <code>offset</code> 有一个不满足，就会在返回到步骤2继续执行全量复制。这里的runid不匹配只有的可能是从节点重启了这个问题后边会解决，<code>offset</code> 不匹配就是复制积压缓冲区溢出了。 </p>
+<p>如果 <code>runid</code> 或 <code>offset</code> 校验通过，从节点的 <code>offset</code> 和主节点的 <code>offset</code> 相同时则忽略。 </p>
+<p>如果 <code>runid</code> 或 <code>offset</code> 检验通过，从节点的 <code>offset</code> 与 <code>offset</code> 不相同，则会发送 <code>+CONTINUE offset</code> (这个offset为主节点的)，通过socket发送复制缓冲区中从节点offset到主节点offset的数据。</p>
+</li>
+<li><p>从节点收到 <code>+CONTINUE</code> 保存master的 <code>offset</code>  通过 <code>socket</code> 接收到信息后，执行<code>bgrewriteaof</code>，恢复数据。</p>
+</li>
+</ol>
+<h3 id="4-2-4-复制积压缓冲区"><a href="#4-2-4-复制积压缓冲区" class="headerlink" title="4.2.4. 复制积压缓冲区"></a>4.2.4. 复制积压缓冲区</h3><p><mark><strong>复制积压缓冲区实际上就是一个先进先出的队列。</strong></mark>在命令传播阶段（后面介绍），master在向slaver同步数据，但是master本身也在同时地修改数据，master执行的命令会被保存在aof持久化文件中，而<strong>复制积压缓冲区实际上保存的持久化的aof数据，只不过是以字节形式存储的，并且每个字节都有自己的偏移量（offset）。</strong></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/2020060116425459.png"></p>
+<blockquote>
+<p><strong>master和slaver都有自己对应的offset，一般来说，如果master有执行更新数据的指令，那么master的offset肯定会后移。那么当slaver发送自己的offset后，master接收到，会比较两个offset之间的差异（上面的步骤7），如果没有差异，那说明数据没有更新，就忽略掉。如果有差异，说明数据更新了，那么就将这两个offset之间对应的数据命令发送到slaver，进行同步。</strong></p>
+</blockquote>
+<p><strong>对于复制积压缓冲区，一般默认大小为1MB。就如同上面所说，master的offset在缓冲区内，但是，如果某一时间段内，客户端发送了大量的数据操作请求，导致复制积压缓冲区溢出，虽然master的offset还是在缓冲区内，但是，master所接收到的slaver的offset却不在缓冲区内，因为队列已经溢出，被挤出去了。这个时候，两个offset之间的数据只有在缓冲区内的还能同步，溢出部分的无法同步了，那么此时就要进行一次全量复制，以此来保证主从数据的完全一致。</strong></p>
+<h2 id="4-3-命令传播过程"><a href="#4-3-命令传播过程" class="headerlink" title="4.3. 命令传播过程"></a>4.3. 命令传播过程</h2><p><mark><strong>当master数据库被修改后，主从服务器的数据不一致后，此时就会让主从数据同步到一致，这个过程称之为命令传播。</strong></mark>master会将接收到的数据变更命令发送给slave，slave接收命令后执行命令，让主从数据达到一致。</p>
+<h3 id="4-3-1-心跳机制"><a href="#4-3-1-心跳机制" class="headerlink" title="4.3.1. 心跳机制"></a>4.3.1. 心跳机制</h3><p>既然在命令传播阶段，主从之间要一直同步数据，那么就应该时刻保证主从之间的连接是没问题的，因此，<strong>用心跳机制来保证主从之间连接时刻在线。</strong></p>
+<ul>
+<li><p><strong>master：心跳</strong></p>
+<p>指令：<code>ping</code>，默认10秒一次，但是可以通过 <code>repl-ping-slave-period</code> 参数来设置</p>
+<p>作用：判断slave是否在线</p>
+</li>
+<li><p><strong>slaver：心跳任务</strong></p>
+<p>指令：<code>replconf ack &#123;offset&#125;</code>，每秒执行一次</p>
+<p>作用：1）给master发送自己的offset，从master获取最新的数据</p>
+<p>​          2）判断master是否在线</p>
+</li>
+</ul>
+<h1 id="5-应用中的问题"><a href="#5-应用中的问题" class="headerlink" title="5. 应用中的问题"></a>5. 应用中的问题</h1><h2 id="5-1-读写分离的问题"><a href="#5-1-读写分离的问题" class="headerlink" title="5.1. 读写分离的问题"></a>5.1. 读写分离的问题</h2><p>当然，读写分离可以使得redis的负载均衡，在高并发的情况下，可以很大程度地提升redis服务器的并发量。但是也有一些问题存在：</p>
+<h3 id="5-1-1-延迟与数据不一致的问题"><a href="#5-1-1-延迟与数据不一致的问题" class="headerlink" title="5.1.1. 延迟与数据不一致的问题"></a>5.1.1. 延迟与数据不一致的问题</h3><p>上面介绍了主从复制的命令传播过程，很显然它是异步的，slaver每一秒发送一次同步请求，但是，这里存在着延迟与数据不一致的问题（我觉得这应该是个因果关系，正是由于延迟而导致了数据不一致），<strong>可以这样浅显地认为：master和slaver之间存在网络延迟，在发送请求的时候会受到影响，那么如果网络延迟过高，就会造成请求发送缓慢，从而不能及时同步，造成数据不一致的情况。</strong></p>
+<p>最直接的方法就是<strong>优化master与slaver之间的网络环境</strong>，让请求的延迟影响降低。或者，从其他方面来说，可以通过判断master和slaver的offset之间差异，来判断是否延迟过大，如果延迟过大，这意味着数据一致性已经较差了，就通知客户端不要再从slaver读取数据，以便读取过时或者错误的数据。也可以通过集群的方法，同时扩展写负载和读负载。</p>
+<p>以上所述是在命令传播阶段发生的，但是如果发生在其他时候，比如slaver和master之间的连接中断了，这样导致的数据不一致更严重，因为此时slaver已经无法同步，但是可能仍然接收到客户端的读请求。因此，可以通过 <code>slave-serve-stale-data</code> 参数来设置，如果将其设为yes，那么在发生这种情况的时候，slaver仍然能够响应客户端的请求，但是，如果将其设置为no，那么slaver只能响应info等少数命令。很显然，对数据一致性要求比较高的话，还是将其设为no比较好。</p>
+<h3 id="5-1-2-数据过期问题"><a href="#5-1-2-数据过期问题" class="headerlink" title="5.1.2. 数据过期问题"></a>5.1.2. 数据过期问题</h3><p>这个问题其实在redis3.2之后的版本中已经解决了。</p>
+<p>redis对于过期数据，有两种删除策略，分别是惰性删除和定期删除，但是，无论哪一种删除策略都不能百分百保证能够及时地对过期数据执行删除操作，因此，对于slaver而言，由于slaver是不会主动删除数据的，只能依靠master控制slaver来删除其中的数据，并且，由于一些延迟的原因，更有可能会发生过期数据没有被及时删除的情况，这样的话，通过slaver来读取数据，很容易出错。</p>
+<p>在redis3.2后，对于slaver而言，在读取数据时，<strong>增加了对数据是否过期的判断</strong>，如果该数据已经过期，那么就不会返回给客户端。</p>
+<h3 id="5-1-3-故障切换问题"><a href="#5-1-3-故障切换问题" class="headerlink" title="5.1.3. 故障切换问题"></a>5.1.3. 故障切换问题</h3><p>在没有使用哨兵模式的前提下，如果master或者slaver发生错误，导致不能使用，那么，需要更改的地方包括客户端到服务器的连接、master到slaver的连接等等，<strong>这些切换操作需要消耗一定的时间和人力成本，因此，可能会造成效率低下的情况。</strong></p>
+<h2 id="5-2-连接超时问题"><a href="#5-2-连接超时问题" class="headerlink" title="5.2. 连接超时问题"></a>5.2. 连接超时问题</h2><h3 id="5-2-1-超时判断的意义"><a href="#5-2-1-超时判断的意义" class="headerlink" title="5.2.1. 超时判断的意义"></a>5.2.1. 超时判断的意义</h3><ol>
+<li><strong>如果主节点判断连接超时，其会释放相应从节点的连接，从而释放各种资源，否则无效的从节点仍会占用主节点的各种资源（输出缓冲区、带宽、连接等）；此外连接超时的判断可以让主节点更准确的知道当前有效从节点的个数，有助于保证数据安全。</strong></li>
+<li><strong>如果从节点判断连接超时，则可以及时重新建立连接，避免与主节点数据长期的不一致。</strong></li>
+</ol>
+<h3 id="5-2-2-判断机制"><a href="#5-2-2-判断机制" class="headerlink" title="5.2.2. 判断机制"></a>5.2.2. 判断机制</h3><p>主从复制超时判断的核心，在于 <code>repl-timeout</code> 参数，该参数规定了超时时间的阈值（默认60s），对于主节点和从节点同时有效。主从节点触发超时的条件分别如下：</p>
+<ol>
+<li>master：每秒1次调用复制定时函数 <code>replicationCron()</code>，在其中判断当前时间距离上次收到各个从节点REPLCONF ACK的时间，是否超过了 <code>repl-timeout</code> 值，如果超过了则释放相应从节点的连接。</li>
+<li>slaver<ul>
+<li>如果当前处于连接建立阶段，且距离上次收到主节点的信息的时间已超过 <code>repl-timeout</code>，则释放与主节点的连接</li>
+<li>如果当前处于数据同步阶段，且收到主节点的rdb文件的时间超过 <code>repl-timeout</code>，则停止数据同步，释放连接</li>
+<li>如果当前处于命令传播阶段，且距离上次收到主节点的 <code>ping</code> 命令或数据的时间已超过 <code>repl-timeout</code> 值，则释放与主节点的连接</li>
+</ul>
+</li>
+</ol>
+<h3 id="5-2-3-可能会导致连接超时的一些问题"><a href="#5-2-3-可能会导致连接超时的一些问题" class="headerlink" title="5.2.3. 可能会导致连接超时的一些问题"></a>5.2.3. 可能会导致连接超时的一些问题</h3><ol>
+<li>数据同步阶段：在主从节点进行全量复制 <code>bgsave</code> 时，主节点需要首先 <code>fork</code> 子进程将当前数据保存到RDB文件中，然后再将rdb文件通过网络传输到从节点。如果rdb文件过大，主节点在 <code>fork</code> 子进程+保存rdb文件时耗时过多，可能会导致从节点长时间收不到数据而触发超时；此时从节点会重连主节点，然后再次全量复制，再次超时，再次重连……这是个悲伤的循环。为了避免这种情况的发生，除了注意redis单机数据量不要过大，另一方面就是适当增大 <code>repl-timeout</code> 值，具体的大小可以根据 <code>bgsave</code> 耗时来调整。</li>
+<li>命令传播阶段：如前所述，在该阶段主节点会向从节点发送 <code>ping</code> 命令，频率由 <code>repl-ping-slave-period</code> 控制；该参数应明显小于 <code>repl-timeout</code> 值(后者至少是前者的几倍)。否则，如果两个参数相等或接近，网络抖动导致个别 <code>ping</code> 命令丢失，此时恰巧主节点也没有向从节点发送数据，则从节点很容易判断超时。</li>
+<li>慢查询导致的阻塞：如果主节点或从节点执行了一些慢查询（如keys *或者对大数据的hgetall等），导致服务器阻塞；阻塞期间无法响应复制连接中对方节点的请求，可能导致复制超时。</li>
+</ol>
+<h3 id="5-2-4-复制中断问题"><a href="#5-2-4-复制中断问题" class="headerlink" title="5.2.4. 复制中断问题"></a>5.2.4. 复制中断问题</h3><p><strong>主从节点连接超时是复制中断的主要原因之一，但是，也有其他情况可能会造成复制中断，比如复制缓冲区溢出。</strong></p>
+<blockquote>
+<p>注意：是复制缓冲区，不是复制积压缓冲区！区别在于：复制缓冲区是客户端输出缓冲区的一种，主节点会为每一个从节点分别分配复制缓冲区；而复制积压缓冲区则是一个主节点只有一个，无论它有多少个从节点。这也很好理解，但凡有一个slaver与master建立连接，master就会为这个slaver分配一个复制缓冲区，用以保存全量复制时的master的写命令。但是，对于复制积压缓冲区而言，它只是在slaver和master已经建立连接之后才有的，master中只有一个，对于每个slaver都通用，因为与slaver建立连接时，该全量复制的数据都已经复制了，剩下的就是在复制积压缓冲区内了。</p>
+</blockquote>
+<p>考虑这样一种情况：在全量复制阶段，主节点会将执行的写命令放到复制缓冲区中，该缓冲区存放的数据包括了以下几个时间段内主节点执行的写命令：bgsave生成rdb文件、rdb文件由主节点发往从节点、从节点清空老数据并载入rdb文件中的数据。当主节点数据量较大，或者主从节点之间网络延迟较大时，可能导致该缓冲区的大小超过了限制，此时主节点会断开与从节点之间的连接；这种情况可能引起全量复制-&gt;复制缓冲区溢出导致连接中断-&gt;重连-&gt;全量复制-&gt;复制缓冲区溢出导致连接中断……的循环。一旦发生这样的循环，那这个主从复制也没有存在的意义了。</p>
+<p>复制缓冲区的大小由 <code>client-output-buffer-limit slave &#123;hard limit&#125; &#123;soft limit&#125; &#123;soft seconds&#125;</code> 配置，默认值为 <code>client-output-buffer-limit slave 256MB 64MB 60</code>，其含义是：如果 <code>buffer</code> 大于256MB，或者连续60s大于64MB，则主节点会断开与该从节点的连接。该参数是可以通过 <code>config set</code> 命令动态配置的（即不重启redis也可以生效）。</p>
+<p>如果复制缓冲区溢出了，master会打印如下日志：</p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E6%97%A5%E5%BF%97.png"></p>
+<h1 id="6-优化技巧"><a href="#6-优化技巧" class="headerlink" title="6. 优化技巧"></a>6. 优化技巧</h1><h2 id="6-1-首次建立连接"><a href="#6-1-首次建立连接" class="headerlink" title="6.1. 首次建立连接"></a>6.1. 首次建立连接</h2><p>此时全量复制不可避免，但仍有几点需要注意：<strong>如果主节点的数据量较大，应该尽量避开流量的高峰期，避免造成阻塞；如果有多个从节点需要建立对主节点的复制，可以考虑将几个从节点错开，避免主节点带宽占用过大。</strong></p>
+<p>此外，如果从节点过多，也可以调整主从复制的拓扑结构，<strong>由一主多从结构变为树状结构</strong>（中间的节点既是其主节点的从节点，也是其从节点的主节点）；但使用树状结构应该谨慎：虽然主节点的直接从节点减少，降低了主节点的负担，但是多层从节点的延迟增大，数据一致性变差；且结构复杂，维护相当困难。</p>
+<h2 id="6-2-master重启"><a href="#6-2-master重启" class="headerlink" title="6.2. master重启"></a>6.2. master重启</h2><h3 id="6-2-1-master宕机"><a href="#6-2-1-master宕机" class="headerlink" title="6.2.1. master宕机"></a>6.2.1. master宕机</h3><p><strong>主节点宕机重启后，runid会发生变化，因此不能进行部分复制，只能全量复制。</strong></p>
+<p>实际上在主节点宕机的情况下，应进行<strong>故障转移处理</strong>，将其中的一个从节点升级为主节点，其他从节点从新的主节点进行复制；且故障转移应尽量的自动化，可以使用哨兵模式来解决。</p>
+<h3 id="6-2-2-master安全重启"><a href="#6-2-2-master安全重启" class="headerlink" title="6.2.2. master安全重启"></a>6.2.2. master安全重启</h3><p>在一些场景下，可能希望对主节点进行重启，例如主节点内存碎片率过高，或者希望调整一些只能在启动时调整的参数。如果使用普通的手段重启主节点，会使得runid发生变化，可能导致不必要的全量复制。</p>
+<p>为了解决这个问题，redis提供了 <code>debug reload</code> 的重启方式：<strong>重启后，主节点的runid和offset都不受影响，避免了全量复制。</strong></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/master%E9%87%8D%E5%90%AF.png"></p>
+<h2 id="6-3-slaver重启"><a href="#6-3-slaver重启" class="headerlink" title="6.3. slaver重启"></a>6.3. slaver重启</h2><p>从节点宕机重启后，其保存的主节点的runid会丢失，因此即使再次执行slaveof，也无法进行部分复制。</p>
+<h2 id="6-4-网络中断"><a href="#6-4-网络中断" class="headerlink" title="6.4. 网络中断"></a>6.4. 网络中断</h2><h3 id="6-4-1-时间短暂"><a href="#6-4-1-时间短暂" class="headerlink" title="6.4.1. 时间短暂"></a>6.4.1. 时间短暂</h3><p>网络问题时间极为短暂，只造成了短暂的丢包，主从节点都没有判定超时（未触发 <code>repl-timeout</code>）；此时只需要通过 <code>replconf ack &#123;offset&#125;</code> 来补充丢失的数据即可。</p>
+<h3 id="6-4-2-时间较长"><a href="#6-4-2-时间较长" class="headerlink" title="6.4.2. 时间较长"></a>6.4.2. 时间较长</h3><p>网络问题时间很长，主从节点判断超时（触发了 <code>repl-timeout</code>），且丢失的数据过多，超过了复制积压缓冲区所能存储的范围；此时主从节点无法进行部分复制，<strong>只能进行全量复制。</strong></p>
+<p>所以，为了尽可能避免这种情况的发生，应该根据实际情况适当调整复制积压缓冲区的大小；此外及时发现并修复网络中断，也可以减少全量复制。</p>
+<h3 id="6-4-3-介于前面两种情况之间"><a href="#6-4-3-介于前面两种情况之间" class="headerlink" title="6.4.3. 介于前面两种情况之间"></a>6.4.3. 介于前面两种情况之间</h3><p>主从节点判断超时，且丢失的数据仍然都在复制积压缓冲区中，但此时主从节点仍然可以进行部分复制。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/StudyBlog.github.io/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" rel="tag"><i class="fa fa-tag"></i> 主从复制</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" rel="next" title="redis-哨兵模式">
+                  redis-哨兵模式 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liu zhen</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/StudyBlog.github.io/js/comments.js"></script><script src="/StudyBlog.github.io/js/utils.js"></script><script src="/StudyBlog.github.io/js/motion.js"></script><script src="/StudyBlog.github.io/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

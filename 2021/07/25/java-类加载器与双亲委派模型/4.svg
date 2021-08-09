@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- 由 Microsoft Visio, SVG Export 生成 4.svg 页-1 -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="6.8463in" height="4.76066in"
+		viewBox="0 0 492.934 342.768" xml:space="preserve" color-interpolation-filters="sRGB" class="st9">
+	<v:documentProperties v:langID="2052" v:metric="true" v:viewMarkup="false"/>
+
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#ffffff;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st2 {fill:#000000;font-family:宋体;font-size:1.00001em}
+		.st3 {font-family:Times New Roman;font-size:1em}
+		.st4 {marker-end:url(#mrkr5-27);stroke:#ff0000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st5 {fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-opacity:1;stroke-width:0.22935779816514}
+		.st6 {fill:none;marker-end:url(#mrkr5-46);stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st7 {fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:0.22935779816514}
+		.st8 {font-size:1em}
+		.st9 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Markers">
+		<g id="lend5">
+			<path d="M 2 1 L 0 0 L 1.98117 -0.993387 C 1.67173 -0.364515 1.67301 0.372641 1.98465 1.00043 " style="stroke:none"/>
+		</g>
+		<marker id="mrkr5-27" class="st5" v:arrowType="5" v:arrowSize="2" v:setback="7.63" refX="-7.63" orient="auto"
+				markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend5" transform="scale(-4.36,-4.36) "/>
+		</marker>
+		<marker id="mrkr5-46" class="st7" v:arrowType="5" v:arrowSize="2" v:setback="7.63" refX="-7.63" orient="auto"
+				markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend5" transform="scale(-4.36,-4.36) "/>
+		</marker>
+	</defs>
+	<g v:mID="0" v:index="1" v:groupContext="foregroundPage">
+		<title>页-1</title>
+		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="8.50394"
+				v:shadowOffsetY="-8.50394"/>
+		<g id="group17-1" transform="translate(0.375,-0.375)" v:mID="17" v:groupContext="group">
+			<title>工作表.17</title>
+			<g id="shape1-2" v:mID="1" v:groupContext="shape" transform="translate(113.386,-294.715)">
+				<title>工作表.1</title>
+				<desc>启动类加载器 Bootstrap ClassLoader</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="70.8661" cy="319.116" width="141.74" height="47.3032"/>
+				<rect x="0" y="295.465" width="141.732" height="47.3032" rx="8.50394" ry="8.50394" class="st1"/>
+				<text x="34.87" y="315.42" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>启动类加载器<v:newlineChar/><tspan
+							x="16.04" dy="1.212em" class="st3">Bootstrap ClassLoader</tspan></text>			</g>
+			<g id="shape2-6" v:mID="2" v:groupContext="shape" transform="translate(113.386,-196.476)">
+				<title>工作表.2</title>
+				<desc>扩展类加载器 Extension ClassLoader</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="70.8661" cy="319.116" width="141.74" height="47.3032"/>
+				<rect x="0" y="295.465" width="141.732" height="47.3032" rx="8.50394" ry="8.50394" class="st1"/>
+				<text x="34.87" y="315.42" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>扩展类加载器<v:newlineChar/><tspan
+							x="15.38" dy="1.212em" class="st3">Extension ClassLoader</tspan></text>			</g>
+			<g id="shape3-10" v:mID="3" v:groupContext="shape" transform="translate(113.386,-98.2382)">
+				<title>工作表.3</title>
+				<desc>应用程序类加载器 Application ClassLoader</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="70.8661" cy="319.116" width="141.74" height="47.3032"/>
+				<rect x="0" y="295.465" width="141.732" height="47.3032" rx="8.50394" ry="8.50394" class="st1"/>
+				<text x="22.87" y="315.42" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>应用程序类加载器<v:newlineChar/><tspan
+							x="11.05" dy="1.212em" class="st3">Application ClassLoader</tspan></text>			</g>
+			<g id="shape4-14" v:mID="4" v:groupContext="shape">
+				<title>工作表.4</title>
+				<desc>自定义类加载器 User ClassLoader</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="70.8661" cy="319.116" width="141.74" height="47.3032"/>
+				<rect x="0" y="295.465" width="141.732" height="47.3032" rx="8.50394" ry="8.50394" class="st1"/>
+				<text x="28.87" y="315.42" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>自定义类加载器<v:newlineChar/><tspan
+							x="28.05" dy="1.212em" class="st3">User ClassLoader</tspan></text>			</g>
+			<g id="shape6-18" v:mID="6" v:groupContext="shape" transform="translate(233.485,0)">
+				<title>工作表.6</title>
+				<desc>自定义类加载器 User ClassLoader</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="70.8661" cy="319.116" width="141.74" height="47.3032"/>
+				<rect x="0" y="295.465" width="141.732" height="47.3032" rx="8.50394" ry="8.50394" class="st1"/>
+				<text x="28.87" y="315.42" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>自定义类加载器<v:newlineChar/><tspan
+							x="28.05" dy="1.212em" class="st3">User ClassLoader</tspan></text>			</g>
+			<g id="shape7-22" v:mID="7" v:groupContext="shape" transform="translate(-155.159,197.226) rotate(-90)">
+				<title>工作表.7</title>
+				<path d="M0 342.77 L45.21 342.77" class="st4"/>
+			</g>
+			<g id="shape8-28" v:mID="8" v:groupContext="shape" transform="translate(-155.159,98.9882) rotate(-90)">
+				<title>工作表.8</title>
+				<path d="M0 342.77 L45.21 342.77" class="st4"/>
+			</g>
+			<g id="shape9-33" v:mID="9" v:groupContext="shape" transform="translate(-101.904,1.40863) rotate(-30.9199)">
+				<title>工作表.9</title>
+				<path d="M0 342.77 L93.4 342.77" class="st4"/>
+			</g>
+			<g id="shape10-38" v:mID="10" v:groupContext="shape" transform="translate(131.671,589.521) rotate(-149.08)">
+				<title>工作表.10</title>
+				<path d="M0 342.77 L93.4 342.77" class="st4"/>
+			</g>
+			<g id="shape11-43" v:mID="11" v:groupContext="shape" transform="translate(130.916,-252.283)">
+				<title>工作表.11</title>
+				<desc>向上委托</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="28.3465" cy="327.177" width="56.7" height="31.1811"/>
+				<rect x="0" y="311.587" width="56.6929" height="31.1811" class="st6"/>
+				<text x="4.35" y="330.78" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>向上委托</text>			</g>
+			<g id="shape12-48" v:mID="12" v:groupContext="shape" transform="translate(130.916,-153.071)">
+				<title>工作表.12</title>
+				<desc>向上委托</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="28.3465" cy="327.177" width="56.7" height="31.1811"/>
+				<rect x="0" y="311.587" width="56.6929" height="31.1811" class="st6"/>
+				<text x="4.35" y="330.78" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>向上委托</text>			</g>
+			<g id="shape13-52" v:mID="13" v:groupContext="shape" transform="translate(55.574,-68.563)">
+				<title>工作表.13</title>
+				<desc>向上委托</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="28.3465" cy="327.177" width="56.7" height="31.1811"/>
+				<rect x="0" y="311.587" width="56.6929" height="31.1811" class="st6"/>
+				<text x="4.35" y="330.78" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>向上委托</text>			</g>
+			<g id="shape14-56" v:mID="14" v:groupContext="shape" transform="translate(272.648,-68.563)">
+				<title>工作表.14</title>
+				<desc>向上委托</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="28.3465" cy="327.177" width="56.7" height="31.1811"/>
+				<rect x="0" y="311.587" width="56.6929" height="31.1811" class="st6"/>
+				<text x="4.35" y="330.78" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>向上委托</text>			</g>
+			<g id="shape15-60" v:mID="15" v:groupContext="shape" transform="translate(714.628,16.7835) rotate(90)">
+				<title>工作表.15</title>
+				<path d="M0 342.77 L249.4 342.77" class="st4"/>
+			</g>
+			<g id="shape16-65" v:mID="16" v:groupContext="shape" transform="translate(380.365,-151.654)">
+				<title>工作表.16</title>
+				<desc>上层加载器加载失败交由下层加载器自己处理</desc>
+				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+				<v:textRect cx="52.4409" cy="291.035" width="104.89" height="103.465"/>
+				<rect x="0" y="239.303" width="104.882" height="103.465" class="st6"/>
+				<text x="4.44" y="280.24" class="st2" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>上层加载器加载失<tspan
+							x="4.44" dy="1.2em" class="st8">败</tspan>，交由下层加载<tspan x="22.44" dy="1.2em" class="st8">器自己处理</tspan></text>			</g>
+		</g>
+	</g>
+</svg>
