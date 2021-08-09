@@ -27,8 +27,8 @@
 <meta property="og:site_name" content="学习记录博客">
 <meta property="og:description" content="1. 特点G1 是一款主要面向服务端应用的垃圾收集器，开创了收集器面向局部收集的设计思路和基于 Region 的内存布局形式。 G1 收集器可以面向堆内存任何部分来组成回收集（Collection Set，一般简称 CSet）进行回收，衡量标准不再是它属于哪个分代，而是哪块内存中存放的垃圾数量最多，回收收益最大，这就是 G1 收集器的 Mixed GC 模式。 1.1. RegionG1 开创的基">
 <meta property="og:locale">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-G1%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-G1%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/2.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//2.png">
 <meta property="article:published_time" content="2021-07-25T09:37:55.000Z">
 <meta property="article:modified_time" content="2021-07-29T09:19:59.785Z">
 <meta property="article:author" content="liu zhen">
@@ -36,7 +36,7 @@
 <meta property="article:tag" content="垃圾收集">
 <meta property="article:tag" content="G1">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-G1%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1.png">
+<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.png">
 
 
 <link rel="canonical" href="https://lzahu.github.io/2021/07/25/java-G1%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/">
@@ -94,8 +94,8 @@
         <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
         <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
         <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
-        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">6</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a></li>
   </ul>
 </nav>
 
@@ -143,14 +143,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/StudyBlog.github.io/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">22</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/StudyBlog.github.io/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -262,7 +262,7 @@
 <h2 id="1-1-Region"><a href="#1-1-Region" class="headerlink" title="1.1. Region"></a>1.1. Region</h2><p>G1 开创的基于 Region 的堆内存布局是它能够实现这个目标的关键。</p>
 <p>虽然 G1 也仍是遵循分代收集理论设计的，但其堆内存的布局与其他收集器有非常明显的差异：G1 不再坚持固定大小以及固定数量的分代区域划分，而是<strong>把连续的Java堆划分为多个大小相等的独立区域（Region），每一个 Region 都可以根据需要，扮演新生代的Eden 空间、Survivor 空间，或者老年代空间。</strong></p>
 <p>收集器能够对扮演不同角色的 Region 采用不同的策略去处理，这样无论是新创建的对象还是已经存活了一段时间、熬过多次收集的旧对象都能获取很好的收集效果。</p>
-<img src="/StudyBlog.github.io/2021/07/25/java-G1%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1.png" style="zoom:80%;">
+<img src="/StudyBlog.github.io/.io//1.png" style="zoom:80%;">
 
 <h2 id="1-2-Humongous"><a href="#1-2-Humongous" class="headerlink" title="1.2. Humongous"></a>1.2. Humongous</h2><p><strong>Region 中还有一类特殊的 Humongous 区域，专门用来存储大对象。</strong>G1 认为只要大小超过了一个 Region 容量一半的对象即可判定为大对象。每个 Region 的大小可以通过参数-XX：G1HeapRegionSize 设定，取值范围为1MB～32MB，且应为2的 N 次幂。G1的大多数行为都把Humongous Region作为老年代的一部分来进行看待。</p>
 <h2 id="1-3-可预测的停顿时间模型"><a href="#1-3-可预测的停顿时间模型" class="headerlink" title="1.3. 可预测的停顿时间模型"></a>1.3. 可预测的停顿时间模型</h2><p>G1 收集器之所以能建立可预测的停顿时间模型，是因为<strong>它将 Region 作为单次回收的最小单元，即每次收集到的内存空间都是Region大小的整数倍，这样可以有计划地避免在整个 Java 堆中进行全区域的垃圾收集。</strong></p>
@@ -281,7 +281,7 @@
 <p>根据各个 Region 的回收价值和成本进行排序，根据用户所期望的停顿时间（使用参数-XX：MaxGCPauseMillis 指定）来制定计划，把决定回收的那一部分Region存活的对象复制到空的 Region 中，再清理掉整个旧 Region 的全部空间。</p>
 </li>
 </ol>
-<p><img src="/StudyBlog.github.io/2021/07/25/java-G1%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/2.png"></p>
+<p><img src="/StudyBlog.github.io/.io//2.png"></p>
 <h1 id="3-细节问题"><a href="#3-细节问题" class="headerlink" title="3. 细节问题"></a>3. 细节问题</h1><h2 id="3-1-跨-Region-引用"><a href="#3-1-跨-Region-引用" class="headerlink" title="3.1. 跨 Region 引用"></a>3.1. 跨 Region 引用</h2><p>使用记忆集避免全堆作为 GC Roots 扫描，但在 G1 收集器上记忆集的应用其实要复杂很多，它的每个 Region 都维护有自己的记忆集，这些<strong>记忆集会记录下别的 Region 指向自己的指针，并标记这些指针分别在哪些卡页的范围之内</strong>。</p>
 <p>G1 的记忆集在存储结构的本质上是一种哈希表，Key 是别的 Region 的起始地址，Value 是一个集合，里面存储的元素是卡表的索引号。这种“双向”的卡表结构（卡表是“我指向谁”，这种结构还记录了“谁指向我”）比原来的卡表实现起来更复杂，同时由于 Region 数量比传统收集器的分代数量明显要多得多，因此 G1 收集器要比其他的传统垃圾收集器有着更高的内存占用负担。</p>
 <h2 id="3-2-并发标记阶段与用户线程互不干扰"><a href="#3-2-并发标记阶段与用户线程互不干扰" class="headerlink" title="3.2. 并发标记阶段与用户线程互不干扰"></a>3.2. 并发标记阶段与用户线程互不干扰</h2><ol>

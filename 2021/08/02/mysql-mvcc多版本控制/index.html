@@ -27,9 +27,9 @@
 <meta property="og:site_name" content="学习记录博客">
 <meta property="og:description" content="介绍关于mysql的innodb引擎的mvcc原理和流程。">
 <meta property="og:locale">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/1.svg">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/2.svg">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/3.svg">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.svg">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//2.svg">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//3.svg">
 <meta property="article:published_time" content="2021-08-02T06:20:58.000Z">
 <meta property="article:modified_time" content="2021-08-02T09:50:32.044Z">
 <meta property="article:author" content="liu zhen">
@@ -37,7 +37,7 @@
 <meta property="article:tag" content="当前读">
 <meta property="article:tag" content="快照读">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/1.svg">
+<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.svg">
 
 
 <link rel="canonical" href="https://lzahu.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/">
@@ -95,8 +95,8 @@
         <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
         <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
         <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
-        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">6</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a></li>
   </ul>
 </nav>
 
@@ -144,14 +144,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/StudyBlog.github.io/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">22</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/StudyBlog.github.io/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -269,7 +269,7 @@
 <ul>
 <li>不加锁的select操作</li>
 </ul>
-<h1 id="2-MVCC原理和流程"><a href="#2-MVCC原理和流程" class="headerlink" title="2. MVCC原理和流程"></a>2. MVCC原理和流程</h1><h2 id="2-1-两个隐藏字段"><a href="#2-1-两个隐藏字段" class="headerlink" title="2.1. 两个隐藏字段"></a>2.1. 两个隐藏字段</h2><p><img src="/StudyBlog.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/1.svg"></p>
+<h1 id="2-MVCC原理和流程"><a href="#2-MVCC原理和流程" class="headerlink" title="2. MVCC原理和流程"></a>2. MVCC原理和流程</h1><h2 id="2-1-两个隐藏字段"><a href="#2-1-两个隐藏字段" class="headerlink" title="2.1. 两个隐藏字段"></a>2.1. 两个隐藏字段</h2><p><img src="/StudyBlog.github.io/.io//1.svg"></p>
 <p>假如目前有一张表，表中的实际数据有3个字段，分别是id、name和age，对应到上图中的前三列，这是比较常见的。</p>
 <p>然而，在mysql中，会在这个表中隐藏2个字段，分别是 <code>trx_id</code> 和 <code>roll_ptr</code>，而mvcc的核心就是这两个字段！</p>
 <ul>
@@ -292,7 +292,7 @@
 </tr>
 </tbody></table>
 <p>接下来，可能有一些事务对这条数据做修改，当然，可能是一个事务多次修改，也可能是多个事务多次修改。在这里，就认为是多个事务多次修改吧，这样好区分一点。比如，事务id是3的事务将name修改为“李四”，事务id是4的事务将name修改为“李王五”，事务id是6的事务将name修改为“赵六”。这个时候，就会产生版本链！</p>
-<p><img src="/StudyBlog.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/2.svg"></p>
+<p><img src="/StudyBlog.github.io/.io//2.svg"></p>
 <p><strong>如上图所示，假设最开始“张三”的这条数据是事务id为1的事务更新的，所以其trx_id为1。之后，三个不同id的事务分别对其做了修改，则trx_id分别记录了对应的事务id。</strong></p>
 <p><strong>而回滚指针roll_ptr则指向本次修改之前（即上一次）的数据，保证了如果要回退的话，可以正确地回退到上一个版本，甚至是前几个版本。“张三”的这条数据的roll_ptr是null，是因为它是原始数据，没有历史版本，所以为空。</strong></p>
 <h2 id="2-3-readview"><a href="#2-3-readview" class="headerlink" title="2.3. readview"></a>2.3. readview</h2><p>以上有了版本链，那么如何读取版本链里的数据呢？读取哪一版本的呢？为此，mvcc使用了 <code>readview</code>，这在源码中就是个对象而已。但是，<strong>它的作用是能够让事务有计划地读取对应版本的数据。</strong></p>
@@ -348,7 +348,7 @@
 </ol>
 <p>通过这样一个流程，挨个取出版本链中的数据，并做这样的判断，就可以读取出正确的数据。</p>
 <h1 id="3-具体例子"><a href="#3-具体例子" class="headerlink" title="3. 具体例子"></a>3. 具体例子</h1><p>举个简单的例子，前提是此时的数据库隔离级别是 <code>读已提交</code>。</p>
-<p><img src="/StudyBlog.github.io/2021/08/02/mysql-mvcc%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/3.svg"></p>
+<p><img src="/StudyBlog.github.io/.io//3.svg"></p>
 <ol>
 <li>在事务4提交之前，事务3的第一个select语句执行，此时会生成一个readview，其中的参数如图中所示。此时，如果查询id = 1的数据，会从版本链的第一条数据开始逐个比较，但是，第一条和第二条数据的事务id都在m_ids中，未提交的不可读。到最后一条数据，事务id是3，这个是事务3的自身修改数据，所以可读。</li>
 <li>在事务4提交之后，事务3的第二个select语句执行，又会生成一个新的readview，但此时其中的m_ids变了，只有3和7。如果这个时候再去查询id = 1的数据，那么读取第二条数据时，它的事务id是4，已经不在m_ids中，说明已经提交了，这个时候就可以直接读取第二条数据。</li>

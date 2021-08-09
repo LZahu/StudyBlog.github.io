@@ -27,7 +27,7 @@
 <meta property="og:site_name" content="学习记录博客">
 <meta property="og:description" content="介绍CMS的过程和特点。">
 <meta property="og:locale">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-CMS%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1.png">
+<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.png">
 <meta property="article:published_time" content="2021-07-25T09:37:06.000Z">
 <meta property="article:modified_time" content="2021-07-29T08:38:35.001Z">
 <meta property="article:author" content="liu zhen">
@@ -35,7 +35,7 @@
 <meta property="article:tag" content="垃圾收集">
 <meta property="article:tag" content="CMS">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-CMS%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1.png">
+<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.png">
 
 
 <link rel="canonical" href="https://lzahu.github.io/2021/07/25/java-CMS%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/">
@@ -93,8 +93,8 @@
         <li class="menu-item menu-item-home"><a href="/StudyBlog.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
         <li class="menu-item menu-item-about"><a href="/StudyBlog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
         <li class="menu-item menu-item-tags"><a href="/StudyBlog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">34</span></a></li>
-        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/StudyBlog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">6</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/StudyBlog.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a></li>
   </ul>
 </nav>
 
@@ -142,14 +142,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/StudyBlog.github.io/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">22</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/StudyBlog.github.io/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -273,7 +273,7 @@
 <p>清理删除掉标记阶段判断的已经死亡的对象，由于不需要移动存活对象，所以这个阶段也是可以与用户线程同时并发的</p>
 </li>
 </ol>
-<p><img src="/StudyBlog.github.io/2021/07/25/java-CMS%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/1.png"></p>
+<p><img src="/StudyBlog.github.io/.io//1.png"></p>
 <h1 id="4-缺点"><a href="#4-缺点" class="headerlink" title="4. 缺点"></a>4. 缺点</h1><ol>
 <li><p><strong>对处理器资源非常敏感</strong>。在并发阶段，它虽然不会导致用户线程停顿，但却会因为占用了一部分线程（或者说处理器的计算能力）而导致应用程序变慢，降低总吞吐量。</p>
 </li>
