@@ -23,27 +23,27 @@
 <meta name="description" content="介绍下垃圾回收的分代假说和三种常见的垃圾回收算法。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="java-基本的垃圾收集算法">
-<meta property="og:url" content="https://lzahu.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:url" content="http://lzahu.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/index.html">
 <meta property="og:site_name" content="学习记录博客">
 <meta property="og:description" content="介绍下垃圾回收的分代假说和三种常见的垃圾回收算法。">
 <meta property="og:locale">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//2.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//3.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//4.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/2.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/3.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/4.png">
 <meta property="article:published_time" content="2021-07-25T07:51:41.000Z">
 <meta property="article:modified_time" content="2021-07-25T08:15:12.722Z">
 <meta property="article:author" content="liu zhen">
 <meta property="article:tag" content="jvm">
 <meta property="article:tag" content="垃圾回收">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//2.png">
+<meta name="twitter:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/2.png">
 
 
-<link rel="canonical" href="https://lzahu.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/">
+<link rel="canonical" href="http://lzahu.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/","path":"2021/07/25/java-基本的垃圾收集算法/","title":"java-基本的垃圾收集算法"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"http://lzahu.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/","path":"2021/07/25/java-基本的垃圾收集算法/","title":"java-基本的垃圾收集算法"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>java-基本的垃圾收集算法 | 学习记录博客</title>
@@ -204,7 +204,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/">
+    <link itemprop="mainEntityOfPage" href="http://lzahu.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
@@ -269,13 +269,13 @@
 <li><p><strong>内存空间的碎片化问题</strong>，标记、清除之后会产生大量不连续的内存碎片，空间碎片太多可能会导致当以后在程序运行过程中需要分配较大对象时无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作</p>
 </li>
 </ol>
-<p><img src="/StudyBlog.github.io/.io//2.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/2.png"></p>
 <h1 id="3-标记-复制算法"><a href="#3-标记-复制算法" class="headerlink" title="3. 标记-复制算法"></a>3. 标记-复制算法</h1><p><mark><strong>最开始，将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把已使用过的内存空间一次清理掉。</strong></mark>如果内存中多数对象都是存活的，这种算法将会产生大量的内存间复制的开销，但对于多数对象都是可回收的情况，算法需要复制的就是占少数的存活对象，而且每次都是针对整个半区进行内存回收，分配内存时也就不用考虑有空间碎片的复杂情况，只要移动堆顶指针，按顺序分配即可。</p>
 <p>优点：</p>
 <p>​    <strong>按顺序分配内存即可</strong>，实现简单、运行高效，不用考虑内存碎片</p>
 <p>缺点：</p>
 <p>​    <strong>是将可用内存缩小为了原来的一半，空间利用率不高</strong></p>
-<p><img src="/StudyBlog.github.io/.io//3.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/3.png"></p>
 <p><strong>由于新生代中的对象有98%熬不过第一轮收集，因此并不需要按照1∶1的比例来划分新生代的内存空间</strong>。<mark>具体做法是把新生代分为一块较大的 Eden 空间和两块较小的 Survivor 空间，每次分配内存只使用Eden和其中一块Survivor。发生垃圾搜集时，将 Eden 和 Survivor 中仍然存活的对象一次性复制到另外一块 Survivor 空间上，然后直接清理掉 Eden 和已用过的那块 Survivor 空间。</mark></p>
 <p>HotSpot 虚拟机默认 Eden 和 Survivor 的大小比例是8∶1，也即每次新生代中可用内存空间为整个新生代容量的90%（Eden 的80%加上一个 Survivor 的10%），只有一个 Survivor 空间，即10%的新生代是会被“浪费”的。</p>
 <p><mark><strong>逃生门：</strong></mark>任何人都没有办法百分百保证每次回收都只有不多于10%的对象存活，因此Appel式回收还有一个充当罕见情况的“逃生门”的安全设计，当 Survivor 空间不足以容纳一次 Minor GC 之后存活的对象时，就需要依赖其他内存区域（实际上大多就是老年代）进行分配担保（Handle Promotion）。</p>
@@ -284,7 +284,7 @@
 <p>​    <strong>不存在内存碎片问题，内存按顺序分配即可</strong></p>
 <p>缺点：</p>
 <p>​    <strong>需要移动对象，降低了效率</strong></p>
-<p><img src="/StudyBlog.github.io/.io//4.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/25/java-%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95/4.png"></p>
 
     </div>
 

@@ -23,37 +23,37 @@
 <meta name="description" content="介绍了关于哨兵模式的原理、配置和工作流程。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis-哨兵模式">
-<meta property="og:url" content="https://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:url" content="http://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/index.html">
 <meta property="og:site_name" content="学习记录博客">
 <meta property="og:description" content="介绍了关于哨兵模式的原理、配置和工作流程。">
 <meta property="og:locale">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//2.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//3.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//4.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//5.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//6.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//7.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//8.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//9.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//10.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//11.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//12.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//13.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/2.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/3.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/4.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/5.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/6.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/7.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/8.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/9.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/10.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/11.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/12.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/13.png">
 <meta property="article:published_time" content="2021-07-18T06:47:43.000Z">
 <meta property="article:modified_time" content="2021-07-18T08:53:22.446Z">
 <meta property="article:author" content="liu zhen">
 <meta property="article:tag" content="主从复制">
 <meta property="article:tag" content="哨兵模式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.png">
+<meta name="twitter:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1.png">
 
 
-<link rel="canonical" href="https://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
+<link rel="canonical" href="http://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/","path":"2021/07/18/redis-哨兵模式/","title":"redis-哨兵模式"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"http://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/","path":"2021/07/18/redis-哨兵模式/","title":"redis-哨兵模式"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>redis-哨兵模式 | 学习记录博客</title>
@@ -214,7 +214,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
+    <link itemprop="mainEntityOfPage" href="http://lzahu.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
@@ -264,7 +264,7 @@
     <div class="post-body" itemprop="articleBody">
         <p>之前说过redis的主从复制，里面有提到，如果master宕机了，那么应该及时切换master，以便于及时响应客户端要求。那么，哨兵模式（sentinel）就可以自动完成这样的功能。</p>
 <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p><mark><strong>哨兵模式是一种机制，它能够在后台监控master是否发生故障，如果发生故障了，就会根据投票数自动地将slaver切换为master。</strong></mark></p>
-<p><img src="/StudyBlog.github.io/.io//1.png" alt="image-20210718145911399"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1.png" alt="image-20210718145911399"></p>
 <h1 id="2-如何配置"><a href="#2-如何配置" class="headerlink" title="2. 如何配置"></a>2. 如何配置</h1><p>前提设置：6379为master，6380和6381为slaver。</p>
 <p>在 <code>data/</code> 文件夹中新建sentinel.conf文件，并在文件中输入以下指令：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor mymaster 127.0.0.1 6379 1</span><br></pre></td></tr></table></figure>
@@ -273,44 +273,44 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> &lt;master-group-name&gt; 给master起个名字</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> &lt;ip&gt; master的ip</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> &lt;port&gt; master的port</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> &lt;quorum&gt; 指的是确认master不可达需要经过多少哨兵同意，从而才能将master标记为失效，并出发故障转移机制</span></span><br><span class="line">sentinel monitor &lt;master-group-name&gt; &lt;ip&gt; &lt;port&gt; &lt;quorum&gt;</span><br></pre></td></tr></table></figure>
 
 <p>之后，输入命令 <code>redis-sentinel data/sentinel.conf</code>，便可以启动哨兵模式：</p>
-<p><img src="/StudyBlog.github.io/.io//2.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/2.png"></p>
 <p>如图所示，启动后可以看到哨兵记录了master和slaver的详细信息，并保存了master和slaver之间的关系。</p>
 <h1 id="3-master宕机"><a href="#3-master宕机" class="headerlink" title="3. master宕机"></a>3. master宕机</h1><h2 id="3-1-sentinel执行切换"><a href="#3-1-sentinel执行切换" class="headerlink" title="3.1. sentinel执行切换"></a>3.1. sentinel执行切换</h2><p>假如master宕机了，那么sentinel就会自动切换master和slaver。</p>
-<p><img src="/StudyBlog.github.io/.io//3.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/3.png"></p>
 <p>如图所示，6379作为master宕机之后，sentinel将6380切换为master，6381的master由6379切换为6380，并且，6379不再是master，而是作为6380的slaver。</p>
-<p><img src="/StudyBlog.github.io/.io//4.png"></p>
-<h2 id="3-2-简单步骤"><a href="#3-2-简单步骤" class="headerlink" title="3.2. 简单步骤"></a>3.2. 简单步骤</h2><p><img src="/StudyBlog.github.io/.io//5.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/4.png"></p>
+<h2 id="3-2-简单步骤"><a href="#3-2-简单步骤" class="headerlink" title="3.2. 简单步骤"></a>3.2. 简单步骤</h2><p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/5.png"></p>
 <p>正常情况下，sentinel的工作方式如上所示。sentinel会监视master和slaver，同时master和slaver之间会进行数据同步。</p>
 <p>但是，如果master宕机了，那么sentinel就会察觉到，并且master和slaver之间的数据同步停止。</p>
-<p><img src="/StudyBlog.github.io/.io//6.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/6.png"></p>
 <p>这个时候，sentinel就会执行切换，从slaver中选取一个作为新的master，并且将其他slaver的master更新为当前master，而原先宕机的master就会变为slaver。</p>
-<p><img src="/StudyBlog.github.io/.io//7.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/7.png"></p>
 <h1 id="4-sentinel的任务"><a href="#4-sentinel的任务" class="headerlink" title="4. sentinel的任务"></a>4. sentinel的任务</h1><ol>
 <li><mark><strong>监控</strong></mark>：sentinel会不断地定期检查当前的master和slaver是否在线？master和slaver之间的连接是否正常？是否可以正常进行数据同步？</li>
 <li><mark><strong>提醒</strong></mark>：当被监控的某个redis服务器发生了故障，sentinel可以向应用端或者其他应用程序发送通知。</li>
 <li><mark><strong>自动故障迁移</strong></mark>：当master不能正常工作时，sentinel会进行自动故障迁移操作，会将其中一个slaver变为新的master，让其他的slaver都变成当前新master的slaver。当客户端试图连接已经宕机的master时，sentinel也会向客户端发送新的master的地址和端口，以便于客户端能够正确访问。</li>
 </ol>
 <h1 id="5-sentinel节点集合"><a href="#5-sentinel节点集合" class="headerlink" title="5. sentinel节点集合"></a>5. sentinel节点集合</h1><p>实际上，sentinel可以不止有一个，而是多个sentinel集中在一起，构成一个sentinel节点集合。在这个集合内部，sentinel之间相互监控，而对于这个集合整体而言，它可以监控其他master和slaver。</p>
-<p><img src="/StudyBlog.github.io/.io//8.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/8.png"></p>
 <h1 id="6-sentinel的工作流程"><a href="#6-sentinel的工作流程" class="headerlink" title="6. sentinel的工作流程"></a>6. sentinel的工作流程</h1><h2 id="6-1-主观下线"><a href="#6-1-主观下线" class="headerlink" title="6.1 主观下线"></a>6.1 主观下线</h2><p>主观下线适用于所有master和slaver。如果在 <code>down-after-milliseconds</code> 毫秒内，sentinel 没有收到目标节点的有效回复，则会判该节点为主观下线。</p>
 <p>通俗点来说，<code>down-after-milliseconds</code> 参数代表的是一个时间长度，sentinel节点向目标节点发送 <code>ping</code> 命令，<strong>如果接收到目标节点回复的时间超过了这个时间长度</strong>，那么，这个sentinel节点就认为目标节点已经处于主观下线状态了。顾名思义，主观下线针对于所有的master和slaver，但是只针对单个sentinel节点，其他的sentinel节点是否认为目标节点处于主观下线的结果对此sentinel节点不影响。</p>
 <h2 id="6-2-客观下线"><a href="#6-2-客观下线" class="headerlink" title="6.2 客观下线"></a>6.2 客观下线</h2><p>由于某个sentinel节点认为目标节点处于主观下线，但是，sentinel节点集合包括了很多个sentinel节点，并不是一个sentinel节点认为它怎样就是怎样的。因此，sentinel节点会通过 <code>sentinel is-master-down-by-addr</code> 命令，向其他的sentinel节点询问该目标节点的状态。</p>
 <p>在第2部分中，sentinel设置指令中有一个参数叫做 <code>quorum</code>，它的作用是指<mark><strong>如果认为目标节点处于主观下线状态的sentinel节点个数大于此参数的值，那么该目标节点就处于客观下线了，</strong></mark>意思就是大部分sentinel节点都认为它下线了，它就是真的下线了。</p>
 <h2 id="6-3-流程"><a href="#6-3-流程" class="headerlink" title="6.3. 流程"></a>6.3. 流程</h2><ol>
 <li><p>每个sentinel以每秒一次的频率向其他的sentinel节点、master和slaver发送 <code>ping</code> 命令，验证其是否在线。</p>
-<p><img src="/StudyBlog.github.io/.io//9.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/9.png"></p>
 </li>
 <li><p>如果某一个节点距离最后一次有效恢复 <code>ping</code> 命令的时间超过 <code>down-after-milliseconds</code>，那么这个节点就会被sentinel标记为主观下线。</p>
-<p><img src="/StudyBlog.github.io/.io//10.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/10.png"></p>
 </li>
 <li><p>假如被标记为主观下线的节点是master，那么正在监控master的所有sentinel节点都会以每秒一次的频率确认master是否处于各自sentinel节点的主观下线状态。</p>
 <ol>
 <li>假如超过 <code>quorum</code> 个sentinel节点认为master处于主观下线状态，那么master就会转为客观下线状态。（一般情况下，sentinel节点会以 <code>每十秒一次</code> 的频率向master和slave发送 <code>info</code> 命令，但是，当master被标记为客观下线时，sentinel节点会以 <code>每秒一次</code> 的频率发送 <code>info</code> 命令）</li>
 </ol>
-<p><img src="/StudyBlog.github.io/.io//11.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/11.png"></p>
 </li>
 <li><p>各个sentinel节点会协商master的状态，如果master处于 <code>sdown</code> 状态，就会投票自动选出新的master，并将其他的slaver与新的master做数据同步和一些设置。</p>
-<p><img src="/StudyBlog.github.io/.io//12.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/12.png"></p>
 </li>
 <li><p>如果没有足够数量的sentinel节点认为master下线了，那么master的客观下线状态就会被移除，前提是master向sentinel节点返回了有效的 <code>ping</code> 命令回复。然后，继续工作。</p>
 </li>
@@ -321,7 +321,7 @@
 <li>偏移量 <code>offset</code>：它的作用是用来表示哪个slaver获得master数据是最全的，最全的当然优先</li>
 <li><code>runid</code>：每个redis实例都会自带的一个变量，越小越优先</li>
 </ol>
-<p><img src="/StudyBlog.github.io/.io//13.png" alt="image-20210718165256147"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/13.png" alt="image-20210718165256147"></p>
 
     </div>
 

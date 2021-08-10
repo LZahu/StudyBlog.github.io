@@ -23,30 +23,30 @@
 <meta name="description" content="介绍了集群的概念、配置和常见问题。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis-集群">
-<meta property="og:url" content="https://lzahu.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/index.html">
+<meta property="og:url" content="http://lzahu.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/index.html">
 <meta property="og:site_name" content="学习记录博客">
 <meta property="og:description" content="介绍了集群的概念、配置和常见问题。">
 <meta property="og:locale">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//2.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//3.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//4.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//5.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//6.png">
-<meta property="og:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//7.jpg">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/1.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/2.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/3.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/4.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/5.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/6.png">
+<meta property="og:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/7.jpg">
 <meta property="article:published_time" content="2021-07-18T10:34:26.000Z">
 <meta property="article:modified_time" content="2021-07-18T12:37:52.691Z">
 <meta property="article:author" content="liu zhen">
 <meta property="article:tag" content="集群">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lzahu.github.io/StudyBlog.github.io/.io//1.png">
+<meta name="twitter:image" content="http://lzahu.github.io/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/1.png">
 
 
-<link rel="canonical" href="https://lzahu.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/">
+<link rel="canonical" href="http://lzahu.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://lzahu.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/","path":"2021/07/18/redis-集群/","title":"redis-集群"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"http://lzahu.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/","path":"2021/07/18/redis-集群/","title":"redis-集群"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>redis-集群 | 学习记录博客</title>
@@ -207,7 +207,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://lzahu.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/">
+    <link itemprop="mainEntityOfPage" href="http://lzahu.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/StudyBlog.github.io/images/head.jpg">
@@ -259,15 +259,15 @@
 <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p><mark><strong>redis集群实现了对redis的水平扩容，即可以启动n个redis节点，将整个数据库分布存放在这n个节点中，每个节点存储总数据的1/n。</strong></mark></p>
 <p>redis集群通过分区来提供一定程度的可用性，及时集群中有一部分节点失效或者无法通讯，集群也可以利用其他节点继续处理命令请求。</p>
 <h1 id="2-配置"><a href="#2-配置" class="headerlink" title="2. 配置"></a>2. 配置</h1><p>我在这里配置了3个master和3个slaver作为一个集群，结构如下：</p>
-<img src="/StudyBlog.github.io/.io//1.png" style="zoom:50%;">
+<img src="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/1.png" style="zoom:50%;">
 
 <p>在 <code>data/</code> 文件夹中新建6个文件，如下所示：（data是我自己随意新建的文件夹）</p>
-<p><img src="/StudyBlog.github.io/.io//2.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/2.png"></p>
 <p>这6个文件的内容其实基本一致，只是端口号不一样，redis6379.conf的内容如下：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">include /etc/redis.conf</span><br><span class="line">pidfile &quot;/var/run/redis_6379.pid&quot;</span><br><span class="line">port 6379</span><br><span class="line">dbfilename &quot;dump6379.rdb&quot;</span><br><span class="line">logfile &quot;data/6379.log&quot;</span><br><span class="line">appendfilename &quot;append6379.aof&quot;</span><br><span class="line">appendonly yes</span><br><span class="line">cluster-enabled yes # 开启集群模式</span><br><span class="line">cluster-config-file nodes-6379.conf</span><br><span class="line">cluster-node-timeout 15000</span><br></pre></td></tr></table></figure>
 
 <p>然后，分别启动6个不同端口的redis服务，<code>ps -ef | grep redis</code> 打印线程，如下所示：</p>
-<p><img src="/StudyBlog.github.io/.io//3.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/3.png"></p>
 <p>最后，执行如下命令：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster create --cluster-replicas 1 192.168.70.130:6379 192.168.70.130:6380 192.168.70.130:6381 192.168.70.130:6389 192.168.70.130:6390 192.168.70.130:6391</span><br></pre></td></tr></table></figure>
 
@@ -275,21 +275,21 @@
 <p><em>注意下，这里面用的是192.168.70.130，这是我pc的真实地址，不能用127.0.0.1相对地址。</em></p>
 </blockquote>
 <p>执行命令后，会出现如下界面：</p>
-<p><img src="/StudyBlog.github.io/.io//4.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/4.png"></p>
 <p>这样就ok了。<em>（其实，仔细看下图片里的信息，会发现实际的master和slaver对应关系并不是第一张图片里那样的，有点偏差，可能是因为我之前运行过redis的相同端口，一些设置没有清除掉，不过不影响这个流程说明）</em></p>
 <p>可以使用集群策略登录redis，比如输入如下指令：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -c -p 6379</span><br></pre></td></tr></table></figure>
 
 <p>这样的话，就登录到了6379端口，并且，在设置数据时，可以自动切换到相应的写主机。</p>
-<p><img src="/StudyBlog.github.io/.io//5.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/5.png"></p>
 <p>其实，用之前 <code>redis-cli -p 6379</code> 这个指令也可以登录到6379端口，但是它不可以重定向。比如，同样输入 <code>set k1 v1</code> 指令，会报错，而不是像图片中所示的重定向到6381端口。</p>
 <h1 id="3-集群的数据分片"><a href="#3-集群的数据分片" class="headerlink" title="3. 集群的数据分片"></a>3. 集群的数据分片</h1><p>上面说到，数据库的全部数据分布存放在这n个节点中，每个节点存储总数据的1/n，但是如何将这些数据分片呢？redis集群引入了 <code>hash slot</code> 这个概念。</p>
 <h2 id="3-1-hash-slot"><a href="#3-1-hash-slot" class="headerlink" title="3.1. hash slot"></a>3.1. hash slot</h2><p><strong>redis集群一共有16384个 <code>hash slot</code>，每个key通过CRC16校验之后，<mark>对16384取模</mark>mark&gt;来决定这个key会放在哪个slot中。</strong></p>
 <p>集群的每个master节点负责一部分slot，可以用 <code>cluster nodes</code> 命令来查看节点信息。</p>
-<p><img src="/StudyBlog.github.io/.io//6.png"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/6.png"></p>
 <p>从图片中可以看出，6379端口包含0 ~ 5460号slot，6380端口包括5461 ~ 10922号slot，6381端口包括10923 ~ 16383号slot。由此，数据库的数据可以根据slot对应地存放在各个master上。</p>
 <p><mark><strong>slot（槽）是介于数据和实际节点（master）之间的虚拟概念，每个实际节点包含一定数量的slot，每个slot又包含了数据。</strong></mark>这样，就将数据的映射关系由 <code>数据hash -&gt; 实际节点</code> 变成了 <code>数据hash -&gt; slot -&gt; 实际节点</code>。如下所示：</p>
-<p><img src="/StudyBlog.github.io/.io//7.jpg"></p>
+<p><img src="/StudyBlog.github.io/2021/07/18/redis-%E9%9B%86%E7%BE%A4/7.jpg"></p>
 <p><mark><strong>slot是数据管理和迁移的基本单位。</strong></mark>槽解耦了数据和实际节点之间的关系，增加或删除节点对系统的影响很小。如果我想新添加个节点D，我需要从节点A，B，C 中得部分槽到D上。如果我想移除节点A，需要将A中的槽移到B和C节点上，然后将没有任何槽的A节点从集群中移除即可。由于从一个节点将哈希槽移动到另一个节点并不会停止服务，所以无论添加删除或者改变某个节点的哈希槽的数量都不会造成集群不可用的状态。</p>
 <h2 id="3-2-节点通信机制"><a href="#3-2-节点通信机制" class="headerlink" title="3.2. 节点通信机制"></a>3.2. 节点通信机制</h2><h3 id="3-2-1-两个端口"><a href="#3-2-1-两个端口" class="headerlink" title="3.2.1. 两个端口"></a>3.2.1. 两个端口</h3><p>在哨兵系统中，节点分为数据节点和哨兵节点：前者存储数据，后者实现额外的控制功能。<strong>在集群中，没有数据节点与非数据节点之分：所有的节点都存储数据，也都参与集群状态的维护。</strong>为此，集群中的每个节点，都提供了两个TCP端口：</p>
 <ol>
